@@ -1,0 +1,28 @@
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import ProtectedRoute from './ProtectedRoute';
+import { LoginPage } from '../pages/LoginPage';
+import { RegisterPage } from '../pages/RegisterPage';
+import { ProfilePage } from '../pages/ProfilePage';
+import { VerifyEmailPage } from '../pages/VerifyEmailPage';
+
+const AppRouter = () => (
+  <BrowserRouter>
+    <Routes>
+      <Route path="/" element={<Navigate to="/login" replace />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
+      <Route path="/auth/verify-email" element={<VerifyEmailPage />} />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="*" element={<Navigate to="/login" replace />} />
+    </Routes>
+  </BrowserRouter>
+);
+
+export default AppRouter;
