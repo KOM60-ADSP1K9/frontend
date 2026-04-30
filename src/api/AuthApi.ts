@@ -1,5 +1,6 @@
 import apiClient from './client';
-import type { ApiResponse, LoginRequest, LoginResponseData, MessageResponse, RegisterRequest, RegisterResponseData, User } from '../types/auth.types';
+import type { ApiResponse } from '../types/api.types';
+import type { LoginRequest, LoginResponseData, RegisterRequest, RegisterResponseData, User } from '../types/auth.types';
 
 export class AuthApi {
   static async register(data: RegisterRequest): Promise<ApiResponse<RegisterResponseData>> {
@@ -17,8 +18,8 @@ export class AuthApi {
     return res.data;
   }
 
-  static async verifyEmail(token: string): Promise<MessageResponse> {
-    const res = await apiClient.get<MessageResponse>('/auth/verify-email', {
+  static async verifyEmail(token: string): Promise<ApiResponse<null>> {
+    const res = await apiClient.get<ApiResponse<null>>('/auth/verify-email', {
       params: { token },
     });
     return res.data;

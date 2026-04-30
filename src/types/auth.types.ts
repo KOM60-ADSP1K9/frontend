@@ -1,3 +1,5 @@
+import type { ApiResponse } from './api.types';
+
 // ── Request types ──────────────────────────────────────────────────────────
 
 export interface RegisterRequest {
@@ -41,15 +43,6 @@ export interface LoginResponseData {
   access_token: string;
 }
 
-// ── API envelope ───────────────────────────────────────────────────────────
+// ── Re-export for convenience ──────────────────────────────────────────────
 
-export interface ApiResponse<T> {
-  status: string;
-  data: T;
-  message: string;
-}
-
-export interface MessageResponse {
-  status: string;
-  message: string;
-}
+export type { ApiResponse };
