@@ -2,11 +2,11 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-brand-primary: #79d7f0;
-  --color-brand-secondary: #92dff3;
-  --color-brand-light: #b8e9f7;
-  --color-brand-lighter: #dbf4fb;
-  --color-brand-bg: #f4fcff;
+  --color-brand-bg: #060E20;
+  --color-brand-surface: #111625;
+  --color-brand-surface-alt: #1E2535;
+  --color-brand-accent: #BFDBFE;
+  --color-brand-muted: #606F86;
   --font-sans: 'Poppins', sans-serif;
 }
 
@@ -16,5 +16,19 @@
 
 body {
   font-family: 'Poppins', sans-serif;
-  background-color: #f4fcff;
+  background-color: #060E20;
+}
+
+/* SweetAlert2 overrides */
+.swal2-popup {
+  border-radius: 1.5rem !important;
+}
+
+.swal-confirm-btn,
+.swal-cancel-btn {
+  color: #ffffff !important;
+  font-family: 'Poppins', sans-serif !important;
+  font-weight: 600 !important;
+  border-radius: 0.75rem !important;
+  padding: 0.6rem 2rem !important;
 }
