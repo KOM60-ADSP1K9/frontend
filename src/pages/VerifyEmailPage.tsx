@@ -30,9 +30,13 @@ class VerifyEmailPageBase extends React.Component<RouterProps, State> {
 
     try {
       const res = await AuthApi.verifyEmail(token);
-      this.setState({ status: 'success', message: res.message });
+      if (res.status === 'success') {
+        this.setState({ status: 'success', message: res.message });
+      } else {
+        this.setState({ status: 'error', message: res.error });
+      }
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Verifikasi gagal. Token mungkin sudah kedaluwarsa.';
+      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error ?? 'Verifikasi gagal. Token mungkin sudah kedaluwarsa.';
       this.setState({ status: 'error', message: msg });
     }
   }
