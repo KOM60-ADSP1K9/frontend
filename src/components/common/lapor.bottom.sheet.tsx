@@ -17,20 +17,18 @@ export class LaporBottomSheet extends React.Component<Props> {
 
   render() {
     const { isOpen, onClose, onSelectHilang, onSelectTemuan } = this.props;
-
     if (!isOpen) return null;
 
     return (
       <div
-        className="fixed inset-0 z-50 flex items-end"
+        className="fixed inset-0 z-50 flex items-end lg:items-center lg:justify-center"
         onClick={this.handleBackdropClick}
         style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)' }}
       >
-        <div className="w-full bg-brand-surface rounded-t-3xl px-5 pt-5 pb-10 animate-slide-up">
-          {/* Handle bar */}
-          <div className="w-10 h-1 rounded-full bg-brand-muted/30 mx-auto mb-5" />
+        <div className="w-full lg:w-[480px] bg-brand-surface rounded-t-3xl lg:rounded-2xl px-5 pt-5 pb-10 lg:px-8 lg:pt-7 lg:pb-8">
+          {/* Handle bar (mobile only) */}
+          <div className="w-10 h-1 rounded-full bg-brand-muted/30 mx-auto mb-5 lg:hidden" />
 
-          {/* Header */}
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-white font-bold text-lg">Buat laporan</h2>
             <button
@@ -41,7 +39,6 @@ export class LaporBottomSheet extends React.Component<Props> {
             </button>
           </div>
 
-          {/* Options */}
           <div className="flex flex-col gap-3">
             <button
               onClick={onSelectHilang}
