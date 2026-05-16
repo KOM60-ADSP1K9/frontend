@@ -105,10 +105,8 @@ export interface HomepageLaporanItem {
   id: string;
   type: LaporanType;
   status: LaporanStatus;
-  lost_at_location_id: string | null;
   lost_at_date: string | null;
   lost_at_location: LokasiEmbedded | null;
-  found_at_location_id: string | null;
   found_at_date: string | null;
   found_at_location: LokasiEmbedded | null;
   created_at: string | null;
