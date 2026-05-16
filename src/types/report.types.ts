@@ -16,6 +16,13 @@ export interface Lokasi {
   updated_at: string | null;
 }
 
+export interface LokasiEmbedded {
+  id: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+}
+
 // ── Barang ─────────────────────────────────────────────────────────────────
 
 export interface BarangResponse {
@@ -100,8 +107,10 @@ export interface HomepageLaporanItem {
   status: LaporanStatus;
   lost_at_location_id: string | null;
   lost_at_date: string | null;
+  lost_at_location: LokasiEmbedded | null;
   found_at_location_id: string | null;
   found_at_date: string | null;
+  found_at_location: LokasiEmbedded | null;
   created_at: string | null;
   updated_at: string | null;
   barang: BarangResponse;
@@ -116,4 +125,7 @@ export interface LaporanQueryParams {
   status?: LaporanStatus;
   page?: number;
   limit?: number;
+  date?: string;
+  date_from?: string;
+  date_to?: string;
 }
