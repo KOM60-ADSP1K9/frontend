@@ -28,7 +28,7 @@ interface State {
   sheetLaporan: HomepageLaporanItem | null;
 }
 
-const EMPTY_FILTERS: ActiveFilters = { date: '', kategoriId: '', status: '' };
+const EMPTY_FILTERS: ActiveFilters = { date_from: '', date_to: '', kategoriId: '', status: '' };
 
 // ── Status options for filter ──────────────────────────────────────────────
 
@@ -95,9 +95,11 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
 
       if (q && !l.barang.name.toLowerCase().includes(q)) return false;
 
-      if (activeFilters.date) {
+      if (activeFilters.date_from || activeFilters.date_to) {
         const eventDate = l.type === 'hilang' ? l.lost_at_date : l.found_at_date;
-        if (eventDate !== activeFilters.date) return false;
+        if (!eventDate) return false;
+        if (activeFilters.date_from && eventDate < activeFilters.date_from) return false;
+        if (activeFilters.date_to && eventDate > activeFilters.date_to) return false;
       }
 
       if (activeFilters.kategoriId && l.barang.kategori_barang_id !== activeFilters.kategoriId) {
@@ -112,7 +114,8 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
 
   private get activeFilterCount(): number {
     const { activeFilters } = this.state;
-    return [activeFilters.date, activeFilters.kategoriId, activeFilters.status].filter(Boolean).length;
+    const hasDate = !!(activeFilters.date_from || activeFilters.date_to);
+    return [hasDate, !!activeFilters.kategoriId, !!activeFilters.status].filter(Boolean).length;
   }
 
   // ── Handlers ──────────────────────────────────────────────────────────────
@@ -269,11 +272,10 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
     if (!filterSheetOpen) return null;
 
     return (
-      <>
-        <div className="fixed inset-0 z-40 bg-black/60" onClick={() => this.setState({ filterSheetOpen: false })} />
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-brand-surface rounded-t-3xl max-w-lg mx-auto max-h-[80vh] flex flex-col">
-          {/* Handle */}
-          <div className="pt-4 pb-2 flex-shrink-0">
+      <div className="fixed inset-0 z-40 bg-black/60 lg:flex lg:items-center lg:justify-center" onClick={() => this.setState({ filterSheetOpen: false })}>
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-brand-surface rounded-t-3xl max-w-lg mx-auto max-h-[80vh] flex flex-col lg:static lg:z-auto lg:max-w-none lg:w-[600px] lg:rounded-2xl lg:max-h-[85vh]" onClick={(e) => e.stopPropagation()}>
+          {/* Handle (mobile only) */}
+          <div className="pt-4 pb-2 flex-shrink-0 lg:hidden">
             <div className="w-10 h-1 bg-brand-muted/30 rounded-full mx-auto" />
           </div>
 
@@ -289,18 +291,40 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
           <div className="flex-1 overflow-y-auto px-6 pb-4 flex flex-col gap-5">
             {/* Filter: Tanggal */}
             <div>
-              <p className="text-brand-muted text-xs font-semibold tracking-widest uppercase mb-2">Tanggal Kejadian</p>
-              <input
-                type="date"
-                value={pendingFilters.date}
-                onChange={(e) => this.setPendingFilter('date', e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-brand-surface-alt text-white text-sm border border-brand-muted/20 focus:outline-none focus:border-brand-accent/50 transition-colors"
-              />
-              {pendingFilters.date && (
-                <button onClick={() => this.setPendingFilter('date', '')} className="mt-1.5 text-xs text-brand-muted hover:text-white">
-                  Hapus tanggal
-                </button>
-              )}
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-brand-muted text-xs font-semibold tracking-widest uppercase">Tanggal Kejadian</p>
+                {(pendingFilters.date_from || pendingFilters.date_to) && (
+                  <button
+                    onClick={() => { this.setPendingFilter('date_from', ''); this.setPendingFilter('date_to', ''); }}
+                    className="text-xs text-brand-muted hover:text-white transition-colors"
+                  >
+                    Hapus
+                  </button>
+                )}
+              </div>
+              <div className="flex gap-2 items-center">
+                <div className="flex-1 flex flex-col gap-1">
+                  <span className="text-brand-muted text-[10px] font-semibold uppercase tracking-wide">Dari</span>
+                  <input
+                    type="date"
+                    value={pendingFilters.date_from}
+                    max={pendingFilters.date_to || undefined}
+                    onChange={(e) => this.setPendingFilter('date_from', e.target.value)}
+                    className="w-full px-3 py-2.5 rounded-xl bg-brand-surface-alt text-white text-sm border border-brand-muted/20 focus:outline-none focus:border-brand-accent/50 transition-colors"
+                  />
+                </div>
+                <span className="text-brand-muted text-sm mt-5">–</span>
+                <div className="flex-1 flex flex-col gap-1">
+                  <span className="text-brand-muted text-[10px] font-semibold uppercase tracking-wide">Sampai</span>
+                  <input
+                    type="date"
+                    value={pendingFilters.date_to}
+                    min={pendingFilters.date_from || undefined}
+                    onChange={(e) => this.setPendingFilter('date_to', e.target.value)}
+                    className="w-full px-3 py-2.5 rounded-xl bg-brand-surface-alt text-white text-sm border border-brand-muted/20 focus:outline-none focus:border-brand-accent/50 transition-colors"
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Filter: Kategori */}
@@ -349,7 +373,7 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
             </button>
           </div>
         </div>
-      </>
+      </div>
     );
   }
 
@@ -360,10 +384,9 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
     const options = LaporanService.nextStatusOptions(sheetLaporan.status);
 
     return (
-      <>
-        <div className="fixed inset-0 z-40 bg-black/60" onClick={() => this.setState({ sheetLaporan: null })} />
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-brand-surface rounded-t-3xl p-6 pb-10 max-w-lg mx-auto">
-          <div className="w-10 h-1 bg-brand-muted/30 rounded-full mx-auto mb-5" />
+      <div className="fixed inset-0 z-40 bg-black/60 lg:flex lg:items-center lg:justify-center" onClick={() => this.setState({ sheetLaporan: null })}>
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-brand-surface rounded-t-3xl p-6 pb-10 lg:pb-6 max-w-lg mx-auto lg:static lg:z-auto lg:max-w-none lg:w-[500px] lg:rounded-2xl" onClick={(e) => e.stopPropagation()}>
+          <div className="w-10 h-1 bg-brand-muted/30 rounded-full mx-auto mb-5 lg:hidden" />
           <p className="text-white font-bold text-base mb-1">{sheetLaporan.barang.name}</p>
           <p className="text-brand-muted text-xs mb-5">Pilih status baru untuk laporan ini</p>
           <div className="flex flex-col gap-3">
@@ -381,75 +404,77 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
             </button>
           </div>
         </div>
-      </>
+      </div>
     );
   }
 
   render() {
     const { isLoading, lokasiMap, updatingId, search, activeFilters } = this.state;
     const filtered = this.getFiltered();
-    const hasAnyFilter = search.trim() || activeFilters.date || activeFilters.kategoriId || activeFilters.status;
+    const hasAnyFilter = search.trim() || activeFilters.date_from || activeFilters.date_to || activeFilters.kategoriId || activeFilters.status;
 
     return (
-      <div className="min-h-screen bg-brand-bg flex flex-col">
+      <div className="min-h-screen bg-brand-bg flex flex-col lg:pl-14">
         {this.renderFilterSheet()}
         {this.renderUpdateSheet()}
 
-        {/* Header */}
-        <div className="px-5 pt-5 pb-3">
-          <h1 className="text-white font-bold text-lg">Semua Laporan</h1>
-          <p className="text-brand-muted text-xs mt-0.5">Feed laporan hilang & temuan</p>
-        </div>
+        <div className="w-full max-w-3xl mx-auto flex flex-col flex-1">
+          {/* Header */}
+          <div className="px-5 pt-5 pb-3 lg:pt-8">
+            <h1 className="text-white font-bold text-lg lg:text-2xl">Semua Laporan</h1>
+            <p className="text-brand-muted text-xs mt-0.5">Feed laporan hilang & temuan</p>
+          </div>
 
-        {/* Search bar + Filter button */}
-        {this.renderSearchBar()}
+          {/* Search bar + Filter button */}
+          {this.renderSearchBar()}
 
-        {/* Type tabs */}
-        {this.renderTypeTabs()}
+          {/* Type tabs */}
+          {this.renderTypeTabs()}
 
-        {/* List */}
-        <div className="flex-1 px-4 pb-24">
-          {isLoading ? (
-            <div className="flex justify-center py-16">
-              <LoadingSpinner />
-            </div>
-          ) : filtered.length === 0 ? (
-            <div className="flex flex-col items-center gap-3 py-16 text-center">
-              {hasAnyFilter ? <SearchX size={40} className="text-brand-muted" /> : <Inbox size={40} className="text-brand-muted" />}
-              <div>
-                <p className="text-white text-sm font-semibold">{hasAnyFilter ? 'Tidak ada hasil' : 'Belum ada laporan'}</p>
-                <p className="text-brand-muted text-xs mt-0.5">{hasAnyFilter ? 'Coba ubah filter atau kata kunci pencarian' : 'Semua laporan akan muncul di sini'}</p>
+          {/* List */}
+          <div className="flex-1 px-4 pb-24">
+            {isLoading ? (
+              <div className="flex justify-center py-16">
+                <LoadingSpinner />
               </div>
-              {hasAnyFilter && (
-                <button onClick={this.resetFilters} className="mt-1 px-4 py-2 rounded-xl bg-brand-surface-alt text-white text-xs font-semibold hover:brightness-110 transition-all">
-                  Reset filter
-                </button>
-              )}
-            </div>
-          ) : (
-            <div className="flex flex-col gap-2.5 max-w-lg mx-auto">
-              <p className="text-brand-muted text-xs mb-1">{filtered.length} laporan ditemukan</p>
-              {filtered.map((item) => (
-                <div key={item.id} className="relative">
-                  {updatingId === item.id && (
-                    <div className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-black/40">
-                      <LoadingSpinner size="sm" />
-                    </div>
-                  )}
-                  <LaporanCard laporan={item} lokasiMap={lokasiMap} showStatus onClick={this.handleCardClick} />
-                  {item.is_owned && LaporanService.canUpdate(item.status) && (
-                    <button onClick={() => this.setState({ sheetLaporan: item })} className="absolute top-3 right-3 text-brand-muted hover:text-brand-accent transition-colors" aria-label="Update status">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <circle cx="12" cy="5" r="1.5" />
-                        <circle cx="12" cy="12" r="1.5" />
-                        <circle cx="12" cy="19" r="1.5" />
-                      </svg>
-                    </button>
-                  )}
+            ) : filtered.length === 0 ? (
+              <div className="flex flex-col items-center gap-3 py-16 text-center">
+                {hasAnyFilter ? <SearchX size={40} className="text-brand-muted" /> : <Inbox size={40} className="text-brand-muted" />}
+                <div>
+                  <p className="text-white text-sm font-semibold">{hasAnyFilter ? 'Tidak ada hasil' : 'Belum ada laporan'}</p>
+                  <p className="text-brand-muted text-xs mt-0.5">{hasAnyFilter ? 'Coba ubah filter atau kata kunci pencarian' : 'Semua laporan akan muncul di sini'}</p>
                 </div>
-              ))}
-            </div>
-          )}
+                {hasAnyFilter && (
+                  <button onClick={this.resetFilters} className="mt-1 px-4 py-2 rounded-xl bg-brand-surface-alt text-white text-xs font-semibold hover:brightness-110 transition-all">
+                    Reset filter
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="flex flex-col gap-2.5">
+                <p className="text-brand-muted text-xs mb-1">{filtered.length} laporan ditemukan</p>
+                {filtered.map((item) => (
+                  <div key={item.id} className="relative">
+                    {updatingId === item.id && (
+                      <div className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-black/40">
+                        <LoadingSpinner size="sm" />
+                      </div>
+                    )}
+                    <LaporanCard laporan={item} lokasiMap={lokasiMap} showStatus onClick={this.handleCardClick} />
+                    {item.is_owned && LaporanService.canUpdate(item.status) && (
+                      <button onClick={() => this.setState({ sheetLaporan: item })} className="absolute top-3 right-3 text-brand-muted hover:text-brand-accent transition-colors" aria-label="Update status">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                          <circle cx="12" cy="5" r="1.5" />
+                          <circle cx="12" cy="12" r="1.5" />
+                          <circle cx="12" cy="19" r="1.5" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         <BottomNavbar />
