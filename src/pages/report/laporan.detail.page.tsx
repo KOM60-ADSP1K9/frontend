@@ -119,10 +119,9 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
     const options = LaporanService.nextStatusOptions(laporan.status);
 
     return (
-      <>
-        <div className="fixed inset-0 z-40 bg-black/60" onClick={() => this.setState({ sheetOpen: false })} />
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-brand-surface rounded-t-3xl p-6 pb-10 max-w-lg mx-auto">
-          <div className="w-10 h-1 bg-brand-muted/30 rounded-full mx-auto mb-5" />
+      <div className="fixed inset-0 z-40 bg-black/60 lg:flex lg:items-center lg:justify-center" onClick={() => this.setState({ sheetOpen: false })}>
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-brand-surface rounded-t-3xl p-6 pb-10 max-w-lg mx-auto lg:static lg:z-auto lg:max-w-none lg:w-[500px] lg:rounded-2xl lg:pb-6" onClick={(e) => e.stopPropagation()}>
+          <div className="w-10 h-1 bg-brand-muted/30 rounded-full mx-auto mb-5 lg:hidden" />
           <p className="text-white font-bold text-base mb-1">Update Status</p>
           <p className="text-brand-muted text-xs mb-5">Pilih status baru untuk laporan ini</p>
           <div className="flex flex-col gap-3">
@@ -143,7 +142,7 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
             </button>
           </div>
         </div>
-      </>
+      </div>
     );
   }
 
@@ -179,107 +178,130 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
     const canEditLaporan = is_owned && LaporanService.canEdit(status);
     const canDeleteLaporan = is_owned && LaporanService.canDelete(status);
 
+    const photoBlock = (
+      <div className="rounded-2xl overflow-hidden bg-brand-surface-alt w-full h-full">
+        {!imgError ? (
+          <img src={barang.photo} alt={barang.name} className="w-full h-full object-cover" onError={() => this.setState({ imgError: true })} />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <ImageOff size={36} className="text-brand-muted" />
+          </div>
+        )}
+      </div>
+    );
+
+    const badgesBlock = (
+      <div className="flex gap-2">
+        <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg tracking-wide ${isFound ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'}`}>{isFound ? 'TEMUAN' : 'HILANG'}</span>
+        <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg tracking-wide ${LaporanService.statusColor(status)}`}>{LaporanService.statusLabel(status).toUpperCase()}</span>
+      </div>
+    );
+
+    const infoBlock = (
+      <div className="flex flex-col gap-3">
+        <div className="p-4 rounded-2xl bg-brand-surface-alt">
+          <p className="text-brand-muted text-xs font-semibold tracking-widest uppercase mb-1.5">Deskripsi</p>
+          <p className="text-white text-sm leading-relaxed">{barang.description}</p>
+        </div>
+        <div className="p-4 rounded-2xl bg-brand-surface-alt flex flex-col gap-3">
+          <div>
+            <p className="text-brand-muted text-xs font-semibold tracking-widest uppercase mb-1">{isFound ? 'Lokasi Ditemukan' : 'Lokasi Kehilangan'}</p>
+            <p className="text-white text-sm">{locationName}</p>
+          </div>
+          <div className="w-full h-px bg-white/5" />
+          <div>
+            <p className="text-brand-muted text-xs font-semibold tracking-widest uppercase mb-1">{isFound ? 'Tanggal Ditemukan' : 'Tanggal Hilang'}</p>
+            <p className="text-white text-sm">{LaporanService.formatDate(eventDate)}</p>
+          </div>
+        </div>
+        {user && (
+          <div className="p-4 rounded-2xl bg-brand-surface-alt">
+            <p className="text-brand-muted text-xs font-semibold tracking-widest uppercase mb-2">Pelapor</p>
+            <p className="text-white text-sm">{user.email}</p>
+            {user.nim && <p className="text-brand-muted text-xs mt-0.5">{user.nim}</p>}
+          </div>
+        )}
+      </div>
+    );
+
+    const ctaBlock = (canUpdateStatus || canDeleteLaporan) ? (
+      <div className="flex flex-col gap-2">
+        {canUpdateStatus && (
+          <div className="flex gap-2">
+            <button
+              onClick={() => this.setState({ sheetOpen: true })}
+              disabled={isUpdating || isDeleting}
+              className="flex-1 py-4 rounded-2xl bg-brand-accent text-brand-bg font-bold text-sm tracking-wide hover:opacity-90 active:scale-[0.98] transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {isUpdating ? <LoadingSpinner size="sm" /> : 'Update Status'}
+            </button>
+            {canEditLaporan && (
+              <button
+                onClick={() => this.props.navigate(`/laporan/${laporan.id}/edit`, { state: { laporan } })}
+                disabled={isUpdating || isDeleting}
+                className="px-5 py-4 rounded-2xl bg-brand-surface-alt text-white font-semibold text-sm hover:brightness-110 active:scale-[0.98] transition-all duration-200 disabled:opacity-50"
+              >
+                Edit
+              </button>
+            )}
+          </div>
+        )}
+        {canDeleteLaporan && (
+          <button
+            onClick={this.handleDelete}
+            disabled={isDeleting || isUpdating}
+            className="w-full py-3.5 rounded-2xl bg-rose-500/10 text-rose-400 font-semibold text-sm hover:bg-rose-500/20 active:scale-[0.98] transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            {isDeleting ? <LoadingSpinner size="sm" /> : 'Hapus Laporan'}
+          </button>
+        )}
+      </div>
+    ) : null;
+
     return (
-      <div className="min-h-screen bg-brand-bg flex flex-col">
+      <div className="min-h-screen bg-brand-bg flex flex-col lg:pl-14">
         {this.renderUpdateSheet()}
 
-        {/* Header */}
-        <div className="flex items-center gap-3 px-4 pt-5 pb-4">
+        {/* Header — shared */}
+        <div className="flex items-center gap-3 px-4 pt-5 pb-4 lg:px-8 lg:pt-8 lg:max-w-5xl lg:mx-auto lg:w-full">
           <button onClick={() => this.props.navigate(-1)} className="w-9 h-9 flex items-center justify-center rounded-xl bg-brand-surface-alt text-brand-muted hover:text-white transition-colors" aria-label="Kembali">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="15 18 9 12 15 6" />
             </svg>
           </button>
-          <h1 className="text-white font-bold text-base flex-1 truncate">Detail Laporan</h1>
+          <h1 className="text-white font-bold text-base lg:text-xl flex-1 truncate">Detail Laporan</h1>
         </div>
 
-        {/* Foto hero */}
-        <div className="mx-4 rounded-2xl overflow-hidden bg-brand-surface-alt h-56">
-          {!imgError ? (
-            <img src={barang.photo} alt={barang.name} className="w-full h-full object-cover" onError={() => this.setState({ imgError: true })} />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <ImageOff size={36} className="text-brand-muted" />
+        {/* Mobile layout */}
+        <div className="lg:hidden flex flex-col flex-1">
+          <div className="mx-4 h-56">{photoBlock}</div>
+          <div className="flex gap-2 px-4 pt-4">{badgesBlock}</div>
+          <div className="px-4 pt-3">
+            <h2 className="text-white font-bold text-xl">{barang.name}</h2>
+          </div>
+          <div className="px-4 pt-4 pb-32">{infoBlock}</div>
+          {ctaBlock && (
+            <div className="fixed bottom-0 left-0 right-0 px-4 pb-6 pt-3 bg-brand-bg border-t border-white/5">
+              {ctaBlock}
             </div>
           )}
         </div>
 
-        {/* Badges */}
-        <div className="flex gap-2 px-4 pt-4">
-          <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg tracking-wide ${isFound ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'}`}>{isFound ? 'TEMUAN' : 'HILANG'}</span>
-          <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg tracking-wide ${LaporanService.statusColor(status)}`}>{LaporanService.statusLabel(status).toUpperCase()}</span>
-        </div>
-
-        {/* Nama barang */}
-        <div className="px-4 pt-3">
-          <h2 className="text-white font-bold text-xl">{barang.name}</h2>
-        </div>
-
-        {/* Info cards */}
-        <div className="flex flex-col gap-3 px-4 pt-4 pb-32">
-          {/* Deskripsi */}
-          <div className="p-4 rounded-2xl bg-brand-surface-alt">
-            <p className="text-brand-muted text-xs font-semibold tracking-widest uppercase mb-1.5">Deskripsi</p>
-            <p className="text-white text-sm leading-relaxed">{barang.description}</p>
+        {/* Desktop layout — dua kolom */}
+        <div className="hidden lg:flex gap-8 px-8 pb-12 max-w-5xl mx-auto w-full flex-1">
+          {/* Kiri: foto */}
+          <div className="w-[400px] flex-shrink-0">
+            <div className="h-[420px] sticky top-8">{photoBlock}</div>
           </div>
 
-          {/* Lokasi & Tanggal */}
-          <div className="p-4 rounded-2xl bg-brand-surface-alt flex flex-col gap-3">
-            <div>
-              <p className="text-brand-muted text-xs font-semibold tracking-widest uppercase mb-1">{isFound ? 'Lokasi Ditemukan' : 'Lokasi Kehilangan'}</p>
-              <p className="text-white text-sm">{locationName}</p>
-            </div>
-            <div className="w-full h-px bg-white/5" />
-            <div>
-              <p className="text-brand-muted text-xs font-semibold tracking-widest uppercase mb-1">{isFound ? 'Tanggal Ditemukan' : 'Tanggal Hilang'}</p>
-              <p className="text-white text-sm">{LaporanService.formatDate(eventDate)}</p>
-            </div>
+          {/* Kanan: detail + CTA */}
+          <div className="flex-1 flex flex-col gap-5 min-w-0">
+            {badgesBlock}
+            <h2 className="text-white font-bold text-3xl leading-tight">{barang.name}</h2>
+            {infoBlock}
+            {ctaBlock && <div className="pt-2">{ctaBlock}</div>}
           </div>
-
-          {/* Pelapor */}
-          {user && (
-            <div className="p-4 rounded-2xl bg-brand-surface-alt">
-              <p className="text-brand-muted text-xs font-semibold tracking-widest uppercase mb-2">Pelapor</p>
-              <p className="text-white text-sm">{user.email}</p>
-              {user.nim && <p className="text-brand-muted text-xs mt-0.5">{user.nim}</p>}
-            </div>
-          )}
         </div>
-
-        {/* CTA bawah */}
-        {(canUpdateStatus || canDeleteLaporan) && (
-          <div className="fixed bottom-0 left-0 right-0 px-4 pb-6 pt-3 bg-brand-bg border-t border-white/5 max-w-lg mx-auto flex flex-col gap-2">
-            {canUpdateStatus && (
-              <div className="flex gap-2">
-                <button
-                  onClick={() => this.setState({ sheetOpen: true })}
-                  disabled={isUpdating || isDeleting}
-                  className="flex-1 py-4 rounded-2xl bg-brand-accent text-brand-bg font-bold text-sm tracking-wide hover:opacity-90 active:scale-[0.98] transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  {isUpdating ? <LoadingSpinner size="sm" /> : 'Update Status'}
-                </button>
-                {canEditLaporan && (
-                  <button
-                    onClick={() => this.props.navigate(`/laporan/${laporan.id}/edit`, { state: { laporan } })}
-                    disabled={isUpdating || isDeleting}
-                    className="px-5 py-4 rounded-2xl bg-brand-surface-alt text-white font-semibold text-sm hover:brightness-110 active:scale-[0.98] transition-all duration-200 disabled:opacity-50"
-                  >
-                    Edit
-                  </button>
-                )}
-              </div>
-            )}
-            {canDeleteLaporan && (
-              <button
-                onClick={this.handleDelete}
-                disabled={isDeleting || isUpdating}
-                className="w-full py-3.5 rounded-2xl bg-rose-500/10 text-rose-400 font-semibold text-sm hover:bg-rose-500/20 active:scale-[0.98] transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2"
-              >
-                {isDeleting ? <LoadingSpinner size="sm" /> : 'Hapus Laporan'}
-              </button>
-            )}
-          </div>
-        )}
       </div>
     );
   }
