@@ -1,14 +1,14 @@
 import React from 'react';
-import { withRouter } from '../router/withRouter';
-import type { RouterProps } from '../router/withRouter';
-import { LoadingSpinner } from '../components/common/LoadingSpinner';
-import { ReportApi } from '../api/ReportApi';
-import { LokasiApi } from '../api/LokasiApi';
-import { Alert } from '../utils/alert';
-import { Toast } from '../utils/toast';
+import { withRouter } from '../../router/with.router';
+import type { RouterProps } from '../../router/with.router';
+import { LoadingSpinner } from '../../components/common/loading.spinner';
+import { LaporanApi } from '../../api/laporan.api';
+import { LokasiApi } from '../../api/lokasi.api';
+import { Alert } from '../../utils/alert';
+import { Toast } from '../../utils/toast';
 import { ImageOff, FileSearch } from 'lucide-react';
-import { LaporanService } from '../services/LaporanService';
-import type { HomepageLaporanItem, UpdateStatusValue } from '../types/report.types';
+import { LaporanService } from '../../services/laporan.service';
+import type { HomepageLaporanItem, UpdateStatusValue } from '../../types/report.types';
 
 // ── State ──────────────────────────────────────────────────────────────────
 
@@ -41,7 +41,9 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
     const lokasiRes = await LokasiApi.getAll();
     const lokasiMap: Record<string, string> = {};
     if (lokasiRes.status === 'success') {
-      lokasiRes.data.forEach((l) => { lokasiMap[l.id] = l.name; });
+      lokasiRes.data.forEach((l) => {
+        lokasiMap[l.id] = l.name;
+      });
     }
 
     if (passed) {
@@ -56,17 +58,14 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
     const { laporan } = this.state;
     if (!laporan) return;
 
-    const confirmed = await Alert.confirm(
-      'Update Status',
-      `Ubah status laporan menjadi "${LaporanService.statusLabel(statusValue as Parameters<typeof LaporanService.statusLabel>[0])}"?`,
-    );
+    const confirmed = await Alert.confirm('Update Status', `Ubah status laporan menjadi "${LaporanService.statusLabel(statusValue as Parameters<typeof LaporanService.statusLabel>[0])}"?`);
     if (!confirmed) return;
 
     this.setState({ isUpdating: true, sheetOpen: false });
     const toastId = Toast.loading('Memperbarui status...');
 
     try {
-      const res = await ReportApi.updateStatus(laporan.id, statusValue);
+      const res = await LaporanApi.updateStatus(laporan.id, statusValue);
       Toast.dismiss(toastId);
 
       if (res.status !== 'success') {
@@ -90,17 +89,14 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
   private handleDelete = async () => {
     const { laporan } = this.state;
     if (!laporan) return;
-    const confirmed = await Alert.confirm(
-      'Hapus Laporan',
-      'Laporan yang dihapus tidak bisa dikembalikan. Lanjutkan?',
-    );
+    const confirmed = await Alert.confirm('Hapus Laporan', 'Laporan yang dihapus tidak bisa dikembalikan. Lanjutkan?');
     if (!confirmed) return;
 
     this.setState({ isDeleting: true });
     const toastId = Toast.loading('Menghapus laporan...');
 
     try {
-      const res = await ReportApi.deleteLaporan(laporan.id);
+      const res = await LaporanApi.deleteLaporan(laporan.id);
       Toast.dismiss(toastId);
       if (res.status !== 'success') {
         Alert.error('Gagal Menghapus', res.error);
@@ -124,10 +120,7 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
 
     return (
       <>
-        <div
-          className="fixed inset-0 z-40 bg-black/60"
-          onClick={() => this.setState({ sheetOpen: false })}
-        />
+        <div className="fixed inset-0 z-40 bg-black/60" onClick={() => this.setState({ sheetOpen: false })} />
         <div className="fixed bottom-0 left-0 right-0 z-50 bg-brand-surface rounded-t-3xl p-6 pb-10 max-w-lg mx-auto">
           <div className="w-10 h-1 bg-brand-muted/30 rounded-full mx-auto mb-5" />
           <p className="text-white font-bold text-base mb-1">Update Status</p>
@@ -139,18 +132,13 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
                 onClick={() => this.handleUpdateStatus(opt.value)}
                 className={[
                   'w-full py-3.5 rounded-2xl text-sm font-semibold transition-all duration-200 active:scale-[0.98]',
-                  opt.danger
-                    ? 'bg-rose-500/10 text-rose-400 hover:bg-rose-500/20'
-                    : 'bg-brand-surface-alt text-white hover:brightness-110',
+                  opt.danger ? 'bg-rose-500/10 text-rose-400 hover:bg-rose-500/20' : 'bg-brand-surface-alt text-white hover:brightness-110',
                 ].join(' ')}
               >
                 {opt.label}
               </button>
             ))}
-            <button
-              onClick={() => this.setState({ sheetOpen: false })}
-              className="w-full py-3.5 rounded-2xl text-brand-muted text-sm font-semibold hover:text-white transition-colors"
-            >
+            <button onClick={() => this.setState({ sheetOpen: false })} className="w-full py-3.5 rounded-2xl text-brand-muted text-sm font-semibold hover:text-white transition-colors">
               Batal
             </button>
           </div>
@@ -175,10 +163,7 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
         <div className="min-h-screen bg-brand-bg flex flex-col items-center justify-center gap-3 px-6">
           <FileSearch size={40} className="text-brand-muted" />
           <p className="text-brand-muted text-sm text-center">Data laporan tidak ditemukan</p>
-          <button
-            onClick={() => this.props.navigate(-1)}
-            className="mt-2 px-6 py-2.5 rounded-xl bg-brand-surface-alt text-white text-sm font-semibold"
-          >
+          <button onClick={() => this.props.navigate(-1)} className="mt-2 px-6 py-2.5 rounded-xl bg-brand-surface-alt text-white text-sm font-semibold">
             Kembali
           </button>
         </div>
@@ -200,11 +185,7 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
 
         {/* Header */}
         <div className="flex items-center gap-3 px-4 pt-5 pb-4">
-          <button
-            onClick={() => this.props.navigate(-1)}
-            className="w-9 h-9 flex items-center justify-center rounded-xl bg-brand-surface-alt text-brand-muted hover:text-white transition-colors"
-            aria-label="Kembali"
-          >
+          <button onClick={() => this.props.navigate(-1)} className="w-9 h-9 flex items-center justify-center rounded-xl bg-brand-surface-alt text-brand-muted hover:text-white transition-colors" aria-label="Kembali">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="15 18 9 12 15 6" />
             </svg>
@@ -215,12 +196,7 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
         {/* Foto hero */}
         <div className="mx-4 rounded-2xl overflow-hidden bg-brand-surface-alt h-56">
           {!imgError ? (
-            <img
-              src={barang.photo}
-              alt={barang.name}
-              className="w-full h-full object-cover"
-              onError={() => this.setState({ imgError: true })}
-            />
+            <img src={barang.photo} alt={barang.name} className="w-full h-full object-cover" onError={() => this.setState({ imgError: true })} />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
               <ImageOff size={36} className="text-brand-muted" />
@@ -230,12 +206,8 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
 
         {/* Badges */}
         <div className="flex gap-2 px-4 pt-4">
-          <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg tracking-wide ${isFound ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'}`}>
-            {isFound ? 'TEMUAN' : 'HILANG'}
-          </span>
-          <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg tracking-wide ${LaporanService.statusColor(status)}`}>
-            {LaporanService.statusLabel(status).toUpperCase()}
-          </span>
+          <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg tracking-wide ${isFound ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'}`}>{isFound ? 'TEMUAN' : 'HILANG'}</span>
+          <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg tracking-wide ${LaporanService.statusColor(status)}`}>{LaporanService.statusLabel(status).toUpperCase()}</span>
         </div>
 
         {/* Nama barang */}
@@ -254,16 +226,12 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
           {/* Lokasi & Tanggal */}
           <div className="p-4 rounded-2xl bg-brand-surface-alt flex flex-col gap-3">
             <div>
-              <p className="text-brand-muted text-xs font-semibold tracking-widest uppercase mb-1">
-                {isFound ? 'Lokasi Ditemukan' : 'Lokasi Kehilangan'}
-              </p>
+              <p className="text-brand-muted text-xs font-semibold tracking-widest uppercase mb-1">{isFound ? 'Lokasi Ditemukan' : 'Lokasi Kehilangan'}</p>
               <p className="text-white text-sm">{locationName}</p>
             </div>
             <div className="w-full h-px bg-white/5" />
             <div>
-              <p className="text-brand-muted text-xs font-semibold tracking-widest uppercase mb-1">
-                {isFound ? 'Tanggal Ditemukan' : 'Tanggal Hilang'}
-              </p>
+              <p className="text-brand-muted text-xs font-semibold tracking-widest uppercase mb-1">{isFound ? 'Tanggal Ditemukan' : 'Tanggal Hilang'}</p>
               <p className="text-white text-sm">{LaporanService.formatDate(eventDate)}</p>
             </div>
           </div>

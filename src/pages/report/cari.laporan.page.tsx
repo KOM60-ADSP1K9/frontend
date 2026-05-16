@@ -1,41 +1,25 @@
 import React from 'react';
 import { Inbox, SearchX } from 'lucide-react';
-import { withRouter } from '../router/withRouter';
-import type { RouterProps } from '../router/withRouter';
-import { BottomNavbar } from '../components/common/BottomNavbar';
-import { LaporanCard } from '../components/report/LaporanCard';
-import { LoadingSpinner } from '../components/common/LoadingSpinner';
-import { HomepageApi } from '../api/HomepageApi';
-import { ReportApi } from '../api/ReportApi';
-import { LokasiApi } from '../api/LokasiApi';
-import { KategoriApi } from '../api/KategoriApi';
-import { Alert } from '../utils/alert';
-import { Toast } from '../utils/toast';
-import { LaporanService } from '../services/LaporanService';
-import type {
-  HomepageLaporanItem,
-  LaporanType,
-  LaporanStatus,
-  KategoriBarang,
-  UpdateStatusValue,
-} from '../types/report.types';
-
-// ── Types ──────────────────────────────────────────────────────────────────
-
-type FilterType = 'semua' | LaporanType;
-
-interface ActiveFilters {
-  date: string;
-  kategoriId: string;
-  status: LaporanStatus | '';
-}
+import { withRouter } from '../../router/with.router';
+import type { RouterProps } from '../../router/with.router';
+import { BottomNavbar } from '../../components/common/bottom.navbar';
+import { LaporanCard } from '../../components/report/report.card';
+import { LoadingSpinner } from '../../components/common/loading.spinner';
+import { LaporanApi } from '../../api/laporan.api';
+import { LokasiApi } from '../../api/lokasi.api';
+import { KategoriApi } from '../../api/kategori.api';
+import { Alert } from '../../utils/alert';
+import { Toast } from '../../utils/toast';
+import { LaporanService } from '../../services/laporan.service';
+import type { HomepageLaporanItem, LaporanStatus, KategoriBarang, UpdateStatusValue } from '../../types/report.types';
+import type { LaporanFilterType, ActiveFilters } from '../../types/ui.types';
 
 interface State {
   laporan: HomepageLaporanItem[];
   lokasiMap: Record<string, string>;
   kategoriList: KategoriBarang[];
   isLoading: boolean;
-  typeFilter: FilterType;
+  typeFilter: LaporanFilterType;
   search: string;
   activeFilters: ActiveFilters;
   pendingFilters: ActiveFilters;
@@ -75,25 +59,21 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
   };
 
   async componentDidMount() {
-    const [laporanRes, lokasiRes, kategoriRes] = await Promise.allSettled([
-      HomepageApi.getAllLaporan({ limit: 100 }),
-      LokasiApi.getAll(),
-      KategoriApi.getAll(),
-    ]);
+    const [laporanRes, lokasiRes, kategoriRes] = await Promise.allSettled([LaporanApi.getAllLaporan({ limit: 100 }), LokasiApi.getAll(), KategoriApi.getAll()]);
 
     const next: Partial<State> = { isLoading: false };
 
     if (laporanRes.status === 'fulfilled' && laporanRes.value.status === 'success') {
-      next.laporan = [...laporanRes.value.data].sort(
-        (a, b) => new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime(),
-      );
+      next.laporan = [...laporanRes.value.data].sort((a, b) => new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime());
     } else {
       Toast.error('Gagal memuat laporan');
     }
 
     if (lokasiRes.status === 'fulfilled' && lokasiRes.value.status === 'success') {
       const map: Record<string, string> = {};
-      lokasiRes.value.data.forEach((l) => { map[l.id] = l.name; });
+      lokasiRes.value.data.forEach((l) => {
+        map[l.id] = l.name;
+      });
       next.lokasiMap = map;
     }
 
@@ -149,7 +129,7 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
     const toastId = Toast.loading('Memperbarui status...');
 
     try {
-      const res = await ReportApi.updateStatus(sheetLaporan.id, statusValue);
+      const res = await LaporanApi.updateStatus(sheetLaporan.id, statusValue);
       Toast.dismiss(toastId);
 
       if (res.status !== 'success') {
@@ -158,9 +138,7 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
         return;
       }
 
-      const updated = laporan.map((l) =>
-        l.id === sheetLaporan.id ? { ...l, status: res.data.status } : l,
-      );
+      const updated = laporan.map((l) => (l.id === sheetLaporan.id ? { ...l, status: res.data.status } : l));
       this.setState({ laporan: updated, updatingId: null });
       Toast.success('Status laporan diperbarui');
     } catch {
@@ -210,10 +188,18 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
         <div className="flex-1 relative">
           <svg
             className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-muted"
-            xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
-            fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+            xmlns="http://www.w3.org/2000/svg"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           >
-            <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
           <input
             type="text"
@@ -223,12 +209,10 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
             className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-brand-surface-alt text-white text-sm placeholder:text-brand-muted border border-brand-muted/20 focus:outline-none focus:border-brand-accent/50 transition-colors"
           />
           {search && (
-            <button
-              onClick={() => this.setState({ search: '' })}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-muted hover:text-white"
-            >
+            <button onClick={() => this.setState({ search: '' })} className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-muted hover:text-white">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
               </svg>
             </button>
           )}
@@ -239,20 +223,16 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
           onClick={this.openFilterSheet}
           className={[
             'relative flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200',
-            count > 0
-              ? 'bg-brand-accent text-brand-bg'
-              : 'bg-brand-surface-alt text-brand-muted hover:text-white',
+            count > 0 ? 'bg-brand-accent text-brand-bg' : 'bg-brand-surface-alt text-brand-muted hover:text-white',
           ].join(' ')}
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="4" y1="6" x2="20" y2="6" /><line x1="8" y1="12" x2="16" y2="12" /><line x1="11" y1="18" x2="13" y2="18" />
+            <line x1="4" y1="6" x2="20" y2="6" />
+            <line x1="8" y1="12" x2="16" y2="12" />
+            <line x1="11" y1="18" x2="13" y2="18" />
           </svg>
           Filter
-          {count > 0 && (
-            <span className="w-4 h-4 rounded-full bg-brand-bg text-brand-accent text-[10px] font-bold flex items-center justify-center">
-              {count}
-            </span>
-          )}
+          {count > 0 && <span className="w-4 h-4 rounded-full bg-brand-bg text-brand-accent text-[10px] font-bold flex items-center justify-center">{count}</span>}
         </button>
       </div>
     );
@@ -260,7 +240,7 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
 
   private renderTypeTabs() {
     const { typeFilter } = this.state;
-    const tabs: { key: FilterType; label: string }[] = [
+    const tabs: { key: LaporanFilterType; label: string }[] = [
       { key: 'semua', label: 'Semua' },
       { key: 'hilang', label: 'Hilang' },
       { key: 'temuan', label: 'Temuan' },
@@ -274,9 +254,7 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
             onClick={() => this.setState({ typeFilter: t.key })}
             className={[
               'px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 flex-shrink-0',
-              typeFilter === t.key
-                ? 'bg-brand-accent text-brand-bg'
-                : 'bg-brand-surface-alt text-brand-muted hover:text-white',
+              typeFilter === t.key ? 'bg-brand-accent text-brand-bg' : 'bg-brand-surface-alt text-brand-muted hover:text-white',
             ].join(' ')}
           >
             {t.label}
@@ -302,17 +280,13 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
           {/* Title */}
           <div className="flex items-center justify-between px-6 py-3 flex-shrink-0">
             <p className="text-white font-bold text-base">Filter</p>
-            <button
-              onClick={this.resetFilters}
-              className="text-brand-muted text-xs hover:text-white transition-colors"
-            >
+            <button onClick={this.resetFilters} className="text-brand-muted text-xs hover:text-white transition-colors">
               Reset
             </button>
           </div>
 
           {/* Scrollable content */}
           <div className="flex-1 overflow-y-auto px-6 pb-4 flex flex-col gap-5">
-
             {/* Filter: Tanggal */}
             <div>
               <p className="text-brand-muted text-xs font-semibold tracking-widest uppercase mb-2">Tanggal Kejadian</p>
@@ -323,10 +297,7 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
                 className="w-full px-4 py-3 rounded-xl bg-brand-surface-alt text-white text-sm border border-brand-muted/20 focus:outline-none focus:border-brand-accent/50 transition-colors"
               />
               {pendingFilters.date && (
-                <button
-                  onClick={() => this.setPendingFilter('date', '')}
-                  className="mt-1.5 text-xs text-brand-muted hover:text-white"
-                >
+                <button onClick={() => this.setPendingFilter('date', '')} className="mt-1.5 text-xs text-brand-muted hover:text-white">
                   Hapus tanggal
                 </button>
               )}
@@ -339,14 +310,10 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
                 {kategoriList.map((k) => (
                   <button
                     key={k.id}
-                    onClick={() =>
-                      this.setPendingFilter('kategoriId', pendingFilters.kategoriId === k.id ? '' : k.id)
-                    }
+                    onClick={() => this.setPendingFilter('kategoriId', pendingFilters.kategoriId === k.id ? '' : k.id)}
                     className={[
                       'px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200',
-                      pendingFilters.kategoriId === k.id
-                        ? 'bg-brand-accent text-brand-bg'
-                        : 'bg-brand-surface-alt text-brand-muted hover:text-white',
+                      pendingFilters.kategoriId === k.id ? 'bg-brand-accent text-brand-bg' : 'bg-brand-surface-alt text-brand-muted hover:text-white',
                     ].join(' ')}
                   >
                     {k.name}
@@ -362,14 +329,10 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
                 {STATUS_OPTIONS.map((s) => (
                   <button
                     key={s.value}
-                    onClick={() =>
-                      this.setPendingFilter('status', pendingFilters.status === s.value ? '' : s.value)
-                    }
+                    onClick={() => this.setPendingFilter('status', pendingFilters.status === s.value ? '' : s.value)}
                     className={[
                       'px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200',
-                      pendingFilters.status === s.value
-                        ? `${LaporanService.statusColor(s.value)} ring-1 ring-current`
-                        : 'bg-brand-surface-alt text-brand-muted hover:text-white',
+                      pendingFilters.status === s.value ? `${LaporanService.statusColor(s.value)} ring-1 ring-current` : 'bg-brand-surface-alt text-brand-muted hover:text-white',
                     ].join(' ')}
                   >
                     {s.label}
@@ -381,10 +344,7 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
 
           {/* Apply button */}
           <div className="px-6 pb-8 pt-3 flex-shrink-0 border-t border-white/5">
-            <button
-              onClick={this.applyFilters}
-              className="w-full py-4 rounded-2xl bg-brand-accent text-brand-bg font-bold text-sm tracking-wide hover:opacity-90 active:scale-[0.98] transition-all duration-200"
-            >
+            <button onClick={this.applyFilters} className="w-full py-4 rounded-2xl bg-brand-accent text-brand-bg font-bold text-sm tracking-wide hover:opacity-90 active:scale-[0.98] transition-all duration-200">
               Terapkan Filter
             </button>
           </div>
@@ -416,10 +376,7 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
                 {opt.label}
               </button>
             ))}
-            <button
-              onClick={() => this.setState({ sheetLaporan: null })}
-              className="w-full py-3.5 rounded-2xl text-brand-muted text-sm font-semibold hover:text-white transition-colors"
-            >
+            <button onClick={() => this.setState({ sheetLaporan: null })} className="w-full py-3.5 rounded-2xl text-brand-muted text-sm font-semibold hover:text-white transition-colors">
               Batal
             </button>
           </div>
@@ -458,22 +415,13 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
             </div>
           ) : filtered.length === 0 ? (
             <div className="flex flex-col items-center gap-3 py-16 text-center">
-              {hasAnyFilter
-                ? <SearchX size={40} className="text-brand-muted" />
-                : <Inbox size={40} className="text-brand-muted" />}
+              {hasAnyFilter ? <SearchX size={40} className="text-brand-muted" /> : <Inbox size={40} className="text-brand-muted" />}
               <div>
-                <p className="text-white text-sm font-semibold">
-                  {hasAnyFilter ? 'Tidak ada hasil' : 'Belum ada laporan'}
-                </p>
-                <p className="text-brand-muted text-xs mt-0.5">
-                  {hasAnyFilter ? 'Coba ubah filter atau kata kunci pencarian' : 'Laporan yang kamu buat akan muncul di sini'}
-                </p>
+                <p className="text-white text-sm font-semibold">{hasAnyFilter ? 'Tidak ada hasil' : 'Belum ada laporan'}</p>
+                <p className="text-brand-muted text-xs mt-0.5">{hasAnyFilter ? 'Coba ubah filter atau kata kunci pencarian' : 'Semua laporan akan muncul di sini'}</p>
               </div>
               {hasAnyFilter && (
-                <button
-                  onClick={this.resetFilters}
-                  className="mt-1 px-4 py-2 rounded-xl bg-brand-surface-alt text-white text-xs font-semibold hover:brightness-110 transition-all"
-                >
+                <button onClick={this.resetFilters} className="mt-1 px-4 py-2 rounded-xl bg-brand-surface-alt text-white text-xs font-semibold hover:brightness-110 transition-all">
                   Reset filter
                 </button>
               )}
@@ -488,20 +436,13 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
                       <LoadingSpinner size="sm" />
                     </div>
                   )}
-                  <LaporanCard
-                    laporan={item}
-                    lokasiMap={lokasiMap}
-                    showStatus
-                    onClick={this.handleCardClick}
-                  />
+                  <LaporanCard laporan={item} lokasiMap={lokasiMap} showStatus onClick={this.handleCardClick} />
                   {item.is_owned && LaporanService.canUpdate(item.status) && (
-                    <button
-                      onClick={() => this.setState({ sheetLaporan: item })}
-                      className="absolute top-3 right-3 text-brand-muted hover:text-brand-accent transition-colors"
-                      aria-label="Update status"
-                    >
+                    <button onClick={() => this.setState({ sheetLaporan: item })} className="absolute top-3 right-3 text-brand-muted hover:text-brand-accent transition-colors" aria-label="Update status">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <circle cx="12" cy="5" r="1.5" /><circle cx="12" cy="12" r="1.5" /><circle cx="12" cy="19" r="1.5" />
+                        <circle cx="12" cy="5" r="1.5" />
+                        <circle cx="12" cy="12" r="1.5" />
+                        <circle cx="12" cy="19" r="1.5" />
                       </svg>
                     </button>
                   )}

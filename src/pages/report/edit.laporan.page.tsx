@@ -1,15 +1,15 @@
 import React from 'react';
-import { withRouter } from '../router/withRouter';
-import type { RouterProps } from '../router/withRouter';
-import { InputField } from '../components/common/InputField';
-import { SelectField } from '../components/common/SelectField';
-import { LoadingSpinner } from '../components/common/LoadingSpinner';
-import { ReportApi } from '../api/ReportApi';
-import { LokasiApi } from '../api/LokasiApi';
-import { KategoriApi } from '../api/KategoriApi';
-import { Alert } from '../utils/alert';
-import { Toast } from '../utils/toast';
-import type { HomepageLaporanItem, Lokasi, KategoriBarang } from '../types/report.types';
+import { withRouter } from '../../router/with.router';
+import type { RouterProps } from '../../router/with.router';
+import { InputField } from '../../components/common/input.field';
+import { SelectField } from '../../components/common/select.field';
+import { LoadingSpinner } from '../../components/common/loading.spinner';
+import { LaporanApi } from '../../api/laporan.api';
+import { LokasiApi } from '../../api/lokasi.api';
+import { KategoriApi } from '../../api/kategori.api';
+import { Alert } from '../../utils/alert';
+import { Toast } from '../../utils/toast';
+import type { HomepageLaporanItem, Lokasi, KategoriBarang } from '../../types/report.types';
 
 // ── State ──────────────────────────────────────────────────────────────────
 
@@ -65,23 +65,14 @@ class EditLaporanPageBase extends React.Component<RouterProps, State> {
       return;
     }
 
-    const [lokasiRes, kategoriRes] = await Promise.allSettled([
-      LokasiApi.getAll(),
-      KategoriApi.getAll(),
-    ]);
+    const [lokasiRes, kategoriRes] = await Promise.allSettled([LokasiApi.getAll(), KategoriApi.getAll()]);
 
-    const lokasi = lokasiRes.status === 'fulfilled' && lokasiRes.value.status === 'success'
-      ? lokasiRes.value.data : [];
-    const kategori = kategoriRes.status === 'fulfilled' && kategoriRes.value.status === 'success'
-      ? kategoriRes.value.data : [];
+    const lokasi = lokasiRes.status === 'fulfilled' && lokasiRes.value.status === 'success' ? lokasiRes.value.data : [];
+    const kategori = kategoriRes.status === 'fulfilled' && kategoriRes.value.status === 'success' ? kategoriRes.value.data : [];
 
-    const locationId = passed.type === 'hilang'
-      ? (passed.lost_at_location_id ?? '')
-      : (passed.found_at_location_id ?? '');
+    const locationId = passed.type === 'hilang' ? (passed.lost_at_location_id ?? '') : (passed.found_at_location_id ?? '');
 
-    const date = passed.type === 'hilang'
-      ? (passed.lost_at_date ?? '')
-      : (passed.found_at_date ?? '');
+    const date = passed.type === 'hilang' ? (passed.lost_at_date ?? '') : (passed.found_at_date ?? '');
 
     this.setState({
       barang_name: passed.barang.name,
@@ -156,8 +147,8 @@ class EditLaporanPageBase extends React.Component<RouterProps, State> {
 
     try {
       const [barangRes, detailsRes] = await Promise.allSettled([
-        ReportApi.updateBarang(passed.id, { barang_name, barang_description, kategori_barang_id, photo: photo ?? undefined }),
-        ReportApi.updateDetails(passed.id, { location_id, date }),
+        LaporanApi.updateBarang(passed.id, { barang_name, barang_description, kategori_barang_id, photo: photo ?? undefined }),
+        LaporanApi.updateDetails(passed.id, { location_id, date }),
       ]);
 
       Toast.dismiss(toastId);
@@ -187,11 +178,7 @@ class EditLaporanPageBase extends React.Component<RouterProps, State> {
   };
 
   render() {
-    const {
-      barang_name, barang_description, kategori_barang_id, location_id, date,
-      photoPreview, existingPhotoUrl,
-      lokasi, kategori, isFetchingData, isSubmitting, errors,
-    } = this.state;
+    const { barang_name, barang_description, kategori_barang_id, location_id, date, photoPreview, existingPhotoUrl, lokasi, kategori, isFetchingData, isSubmitting, errors } = this.state;
 
     const passed = (this.props.location.state as { laporan?: HomepageLaporanItem } | null)?.laporan;
     const isHilang = passed?.type === 'hilang';
@@ -211,10 +198,7 @@ class EditLaporanPageBase extends React.Component<RouterProps, State> {
       <div className="min-h-screen bg-brand-bg flex flex-col">
         {/* Header */}
         <div className="flex items-center gap-3 px-4 pt-5 pb-4">
-          <button
-            onClick={() => this.props.navigate(-1)}
-            className="w-9 h-9 flex items-center justify-center rounded-xl bg-brand-surface-alt text-brand-muted hover:text-white transition-colors"
-          >
+          <button onClick={() => this.props.navigate(-1)} className="w-9 h-9 flex items-center justify-center rounded-xl bg-brand-surface-alt text-brand-muted hover:text-white transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="15 18 9 12 15 6" />
             </svg>
@@ -229,21 +213,22 @@ class EditLaporanPageBase extends React.Component<RouterProps, State> {
             {photoPreview ? (
               <div className="relative rounded-xl overflow-hidden border border-brand-muted/20">
                 <img src={photoPreview} alt="Preview baru" className="w-full h-48 object-cover" />
-                <button
-                  type="button"
-                  onClick={this.handleRemoveNewPhoto}
-                  className="absolute top-2 right-2 bg-black/60 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs hover:bg-black/80"
-                >✕</button>
+                <button type="button" onClick={this.handleRemoveNewPhoto} className="absolute top-2 right-2 bg-black/60 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs hover:bg-black/80">
+                  ✕
+                </button>
                 <span className="absolute bottom-2 left-2 text-[10px] bg-black/60 text-white px-2 py-0.5 rounded-full">Foto baru</span>
               </div>
             ) : (
               <div className="relative rounded-xl overflow-hidden border border-brand-muted/20">
-                <img src={existingPhotoUrl} alt="Foto saat ini" className="w-full h-48 object-cover" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
-                <button
-                  type="button"
-                  onClick={() => this.galleryInputRef.current?.click()}
-                  className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-3 py-1.5 rounded-full hover:bg-black/90 transition-colors"
-                >
+                <img
+                  src={existingPhotoUrl}
+                  alt="Foto saat ini"
+                  className="w-full h-48 object-cover"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+                <button type="button" onClick={() => this.galleryInputRef.current?.click()} className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-3 py-1.5 rounded-full hover:bg-black/90 transition-colors">
                   Ganti Foto
                 </button>
               </div>
@@ -252,14 +237,7 @@ class EditLaporanPageBase extends React.Component<RouterProps, State> {
             <p className="text-xs text-brand-muted">Kosongkan jika tidak ingin mengganti foto</p>
           </div>
 
-          <InputField
-            label="Nama Barang"
-            name="barang_name"
-            value={barang_name}
-            error={errors.barang_name}
-            required
-            onChange={this.handleTextChange}
-          />
+          <InputField label="Nama Barang" name="barang_name" value={barang_name} error={errors.barang_name} required onChange={this.handleTextChange} />
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor="barang_description" className="text-xs font-semibold tracking-widest uppercase text-brand-muted">
@@ -274,26 +252,17 @@ class EditLaporanPageBase extends React.Component<RouterProps, State> {
               className={[
                 'w-full px-4 py-3.5 rounded-xl text-sm outline-none transition-all duration-200 resize-none',
                 'bg-brand-surface-alt text-white placeholder:text-brand-muted border focus:ring-2',
-                errors.barang_description
-                  ? 'border-rose-500/50 focus:border-rose-500/70 focus:ring-rose-500/10'
-                  : 'border-brand-muted/20 focus:border-brand-accent/50 focus:ring-brand-accent/10',
+                errors.barang_description ? 'border-rose-500/50 focus:border-rose-500/70 focus:ring-rose-500/10' : 'border-brand-muted/20 focus:border-brand-accent/50 focus:ring-brand-accent/10',
               ].join(' ')}
             />
             {errors.barang_description && (
-              <p className="text-xs text-rose-400 flex items-center gap-1"><span>⚠</span> {errors.barang_description}</p>
+              <p className="text-xs text-rose-400 flex items-center gap-1">
+                <span>⚠</span> {errors.barang_description}
+              </p>
             )}
           </div>
 
-          <SelectField
-            label="Kategori Barang"
-            name="kategori_barang_id"
-            value={kategori_barang_id}
-            options={kategoriOptions}
-            placeholder="Pilih kategori..."
-            error={errors.kategori_barang_id}
-            required
-            onChange={this.handleSelectChange}
-          />
+          <SelectField label="Kategori Barang" name="kategori_barang_id" value={kategori_barang_id} options={kategoriOptions} placeholder="Pilih kategori..." error={errors.kategori_barang_id} required onChange={this.handleSelectChange} />
 
           <SelectField
             label={isHilang ? 'Lokasi Kehilangan' : 'Lokasi Ditemukan'}
@@ -306,15 +275,7 @@ class EditLaporanPageBase extends React.Component<RouterProps, State> {
             onChange={this.handleSelectChange}
           />
 
-          <InputField
-            label={isHilang ? 'Tanggal Kehilangan' : 'Tanggal Ditemukan'}
-            name="date"
-            type="date"
-            value={date}
-            error={errors.date}
-            required
-            onChange={this.handleTextChange}
-          />
+          <InputField label={isHilang ? 'Tanggal Kehilangan' : 'Tanggal Ditemukan'} name="date" type="date" value={date} error={errors.date} required onChange={this.handleTextChange} />
         </form>
 
         {/* Submit CTA */}
