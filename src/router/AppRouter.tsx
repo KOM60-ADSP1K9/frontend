@@ -7,6 +7,9 @@ import { VerifyEmailPage } from '../pages/VerifyEmailPage';
 import { BerandaPage } from '../pages/BerandaPage';
 import { RiwayatPage } from '../pages/RiwayatPage';
 import { LaporPage } from '../pages/LaporPage';
+import { LaporanDetailPage } from '../pages/LaporanDetailPage';
+import { EditLaporanPage } from '../pages/EditLaporanPage';
+import { LaporanSayaPage } from '../pages/LaporanSayaPage';
 
 const AppRouter = () => (
   <BrowserRouter>
@@ -35,6 +38,30 @@ const AppRouter = () => (
         element={
           <ProtectedRoute>
             <LaporPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/laporan/:id"
+        element={
+          <ProtectedRoute>
+            <LaporanDetailPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/laporan-saya"
+        element={
+          <ProtectedRoute>
+            <LaporanSayaPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/laporan/:id/edit"
+        element={
+          <ProtectedRoute>
+            <EditLaporanPage />
           </ProtectedRoute>
         }
       />
