@@ -1,0 +1,320 @@
+import React from 'react';
+import { withRouter } from '../router/withRouter';
+import type { RouterProps } from '../router/withRouter';
+import { LoadingSpinner } from '../components/common/LoadingSpinner';
+import { ReportApi } from '../api/ReportApi';
+import { LokasiApi } from '../api/LokasiApi';
+import { Alert } from '../utils/alert';
+import { Toast } from '../utils/toast';
+import { ImageOff, FileSearch } from 'lucide-react';
+import { LaporanService } from '../services/LaporanService';
+import type { HomepageLaporanItem, UpdateStatusValue } from '../types/report.types';
+
+// ── State ──────────────────────────────────────────────────────────────────
+
+interface State {
+  laporan: HomepageLaporanItem | null;
+  lokasiMap: Record<string, string>;
+  isLoading: boolean;
+  isUpdating: boolean;
+  isDeleting: boolean;
+  sheetOpen: boolean;
+  imgError: boolean;
+}
+
+// ── Component ──────────────────────────────────────────────────────────────
+
+class LaporanDetailPageBase extends React.Component<RouterProps, State> {
+  state: State = {
+    laporan: null,
+    lokasiMap: {},
+    isLoading: true,
+    isUpdating: false,
+    isDeleting: false,
+    sheetOpen: false,
+    imgError: false,
+  };
+
+  async componentDidMount() {
+    const passed = (this.props.location.state as { laporan?: HomepageLaporanItem } | null)?.laporan;
+
+    const lokasiRes = await LokasiApi.getAll();
+    const lokasiMap: Record<string, string> = {};
+    if (lokasiRes.status === 'success') {
+      lokasiRes.data.forEach((l) => { lokasiMap[l.id] = l.name; });
+    }
+
+    if (passed) {
+      this.setState({ laporan: passed, lokasiMap, isLoading: false });
+    } else {
+      this.setState({ lokasiMap, isLoading: false });
+      Alert.error('Data tidak ditemukan', 'Buka dari daftar laporan.');
+    }
+  }
+
+  private handleUpdateStatus = async (statusValue: UpdateStatusValue) => {
+    const { laporan } = this.state;
+    if (!laporan) return;
+
+    const confirmed = await Alert.confirm(
+      'Update Status',
+      `Ubah status laporan menjadi "${LaporanService.statusLabel(statusValue as Parameters<typeof LaporanService.statusLabel>[0])}"?`,
+    );
+    if (!confirmed) return;
+
+    this.setState({ isUpdating: true, sheetOpen: false });
+    const toastId = Toast.loading('Memperbarui status...');
+
+    try {
+      const res = await ReportApi.updateStatus(laporan.id, statusValue);
+      Toast.dismiss(toastId);
+
+      if (res.status !== 'success') {
+        Alert.error('Gagal Update Status', res.error);
+        this.setState({ isUpdating: false });
+        return;
+      }
+
+      this.setState({
+        laporan: { ...laporan, status: res.data.status },
+        isUpdating: false,
+      });
+      Toast.success('Status laporan diperbarui');
+    } catch {
+      Toast.dismiss(toastId);
+      Alert.error('Gagal Update Status', 'Terjadi kesalahan. Coba lagi.');
+      this.setState({ isUpdating: false });
+    }
+  };
+
+  private handleDelete = async () => {
+    const { laporan } = this.state;
+    if (!laporan) return;
+    const confirmed = await Alert.confirm(
+      'Hapus Laporan',
+      'Laporan yang dihapus tidak bisa dikembalikan. Lanjutkan?',
+    );
+    if (!confirmed) return;
+
+    this.setState({ isDeleting: true });
+    const toastId = Toast.loading('Menghapus laporan...');
+
+    try {
+      const res = await ReportApi.deleteLaporan(laporan.id);
+      Toast.dismiss(toastId);
+      if (res.status !== 'success') {
+        Alert.error('Gagal Menghapus', res.error);
+        this.setState({ isDeleting: false });
+        return;
+      }
+      Toast.success('Laporan berhasil dihapus');
+      this.props.navigate('/riwayat');
+    } catch {
+      Toast.dismiss(toastId);
+      Alert.error('Gagal Menghapus', 'Terjadi kesalahan. Coba lagi.');
+      this.setState({ isDeleting: false });
+    }
+  };
+
+  private renderUpdateSheet() {
+    const { laporan, sheetOpen } = this.state;
+    if (!laporan || !sheetOpen) return null;
+
+    const options = LaporanService.nextStatusOptions(laporan.status);
+
+    return (
+      <>
+        <div
+          className="fixed inset-0 z-40 bg-black/60"
+          onClick={() => this.setState({ sheetOpen: false })}
+        />
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-brand-surface rounded-t-3xl p-6 pb-10 max-w-lg mx-auto">
+          <div className="w-10 h-1 bg-brand-muted/30 rounded-full mx-auto mb-5" />
+          <p className="text-white font-bold text-base mb-1">Update Status</p>
+          <p className="text-brand-muted text-xs mb-5">Pilih status baru untuk laporan ini</p>
+          <div className="flex flex-col gap-3">
+            {options.map((opt) => (
+              <button
+                key={opt.value}
+                onClick={() => this.handleUpdateStatus(opt.value)}
+                className={[
+                  'w-full py-3.5 rounded-2xl text-sm font-semibold transition-all duration-200 active:scale-[0.98]',
+                  opt.danger
+                    ? 'bg-rose-500/10 text-rose-400 hover:bg-rose-500/20'
+                    : 'bg-brand-surface-alt text-white hover:brightness-110',
+                ].join(' ')}
+              >
+                {opt.label}
+              </button>
+            ))}
+            <button
+              onClick={() => this.setState({ sheetOpen: false })}
+              className="w-full py-3.5 rounded-2xl text-brand-muted text-sm font-semibold hover:text-white transition-colors"
+            >
+              Batal
+            </button>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  render() {
+    const { laporan, lokasiMap, isLoading, isUpdating, isDeleting, imgError } = this.state;
+
+    if (isLoading) {
+      return (
+        <div className="min-h-screen bg-brand-bg flex items-center justify-center">
+          <LoadingSpinner />
+        </div>
+      );
+    }
+
+    if (!laporan) {
+      return (
+        <div className="min-h-screen bg-brand-bg flex flex-col items-center justify-center gap-3 px-6">
+          <FileSearch size={40} className="text-brand-muted" />
+          <p className="text-brand-muted text-sm text-center">Data laporan tidak ditemukan</p>
+          <button
+            onClick={() => this.props.navigate(-1)}
+            className="mt-2 px-6 py-2.5 rounded-xl bg-brand-surface-alt text-white text-sm font-semibold"
+          >
+            Kembali
+          </button>
+        </div>
+      );
+    }
+
+    const { barang, type, status, user, is_owned } = laporan;
+    const isFound = type === 'temuan';
+    const locationId = isFound ? laporan.found_at_location_id : laporan.lost_at_location_id;
+    const locationName = locationId ? (lokasiMap[locationId] ?? '—') : '—';
+    const eventDate = isFound ? laporan.found_at_date : laporan.lost_at_date;
+    const canUpdateStatus = is_owned && LaporanService.canUpdate(status);
+    const canEditLaporan = is_owned && LaporanService.canEdit(status);
+    const canDeleteLaporan = is_owned && LaporanService.canDelete(status);
+
+    return (
+      <div className="min-h-screen bg-brand-bg flex flex-col">
+        {this.renderUpdateSheet()}
+
+        {/* Header */}
+        <div className="flex items-center gap-3 px-4 pt-5 pb-4">
+          <button
+            onClick={() => this.props.navigate(-1)}
+            className="w-9 h-9 flex items-center justify-center rounded-xl bg-brand-surface-alt text-brand-muted hover:text-white transition-colors"
+            aria-label="Kembali"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
+          <h1 className="text-white font-bold text-base flex-1 truncate">Detail Laporan</h1>
+        </div>
+
+        {/* Foto hero */}
+        <div className="mx-4 rounded-2xl overflow-hidden bg-brand-surface-alt h-56">
+          {!imgError ? (
+            <img
+              src={barang.photo}
+              alt={barang.name}
+              className="w-full h-full object-cover"
+              onError={() => this.setState({ imgError: true })}
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <ImageOff size={36} className="text-brand-muted" />
+            </div>
+          )}
+        </div>
+
+        {/* Badges */}
+        <div className="flex gap-2 px-4 pt-4">
+          <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg tracking-wide ${isFound ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'}`}>
+            {isFound ? 'TEMUAN' : 'HILANG'}
+          </span>
+          <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg tracking-wide ${LaporanService.statusColor(status)}`}>
+            {LaporanService.statusLabel(status).toUpperCase()}
+          </span>
+        </div>
+
+        {/* Nama barang */}
+        <div className="px-4 pt-3">
+          <h2 className="text-white font-bold text-xl">{barang.name}</h2>
+        </div>
+
+        {/* Info cards */}
+        <div className="flex flex-col gap-3 px-4 pt-4 pb-32">
+          {/* Deskripsi */}
+          <div className="p-4 rounded-2xl bg-brand-surface-alt">
+            <p className="text-brand-muted text-xs font-semibold tracking-widest uppercase mb-1.5">Deskripsi</p>
+            <p className="text-white text-sm leading-relaxed">{barang.description}</p>
+          </div>
+
+          {/* Lokasi & Tanggal */}
+          <div className="p-4 rounded-2xl bg-brand-surface-alt flex flex-col gap-3">
+            <div>
+              <p className="text-brand-muted text-xs font-semibold tracking-widest uppercase mb-1">
+                {isFound ? 'Lokasi Ditemukan' : 'Lokasi Kehilangan'}
+              </p>
+              <p className="text-white text-sm">{locationName}</p>
+            </div>
+            <div className="w-full h-px bg-white/5" />
+            <div>
+              <p className="text-brand-muted text-xs font-semibold tracking-widest uppercase mb-1">
+                {isFound ? 'Tanggal Ditemukan' : 'Tanggal Hilang'}
+              </p>
+              <p className="text-white text-sm">{LaporanService.formatDate(eventDate)}</p>
+            </div>
+          </div>
+
+          {/* Pelapor */}
+          {user && (
+            <div className="p-4 rounded-2xl bg-brand-surface-alt">
+              <p className="text-brand-muted text-xs font-semibold tracking-widest uppercase mb-2">Pelapor</p>
+              <p className="text-white text-sm">{user.email}</p>
+              {user.nim && <p className="text-brand-muted text-xs mt-0.5">{user.nim}</p>}
+            </div>
+          )}
+        </div>
+
+        {/* CTA bawah */}
+        {(canUpdateStatus || canDeleteLaporan) && (
+          <div className="fixed bottom-0 left-0 right-0 px-4 pb-6 pt-3 bg-brand-bg border-t border-white/5 max-w-lg mx-auto flex flex-col gap-2">
+            {canUpdateStatus && (
+              <div className="flex gap-2">
+                <button
+                  onClick={() => this.setState({ sheetOpen: true })}
+                  disabled={isUpdating || isDeleting}
+                  className="flex-1 py-4 rounded-2xl bg-brand-accent text-brand-bg font-bold text-sm tracking-wide hover:opacity-90 active:scale-[0.98] transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {isUpdating ? <LoadingSpinner size="sm" /> : 'Update Status'}
+                </button>
+                {canEditLaporan && (
+                  <button
+                    onClick={() => this.props.navigate(`/laporan/${laporan.id}/edit`, { state: { laporan } })}
+                    disabled={isUpdating || isDeleting}
+                    className="px-5 py-4 rounded-2xl bg-brand-surface-alt text-white font-semibold text-sm hover:brightness-110 active:scale-[0.98] transition-all duration-200 disabled:opacity-50"
+                  >
+                    Edit
+                  </button>
+                )}
+              </div>
+            )}
+            {canDeleteLaporan && (
+              <button
+                onClick={this.handleDelete}
+                disabled={isDeleting || isUpdating}
+                className="w-full py-3.5 rounded-2xl bg-rose-500/10 text-rose-400 font-semibold text-sm hover:bg-rose-500/20 active:scale-[0.98] transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {isDeleting ? <LoadingSpinner size="sm" /> : 'Hapus Laporan'}
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
+}
+
+export const LaporanDetailPage = withRouter(LaporanDetailPageBase);
