@@ -37,7 +37,7 @@ class LaporPageBase extends React.Component<RouterProps, State> {
 
   private renderChoose() {
     return (
-      <div className="flex flex-col items-center gap-6 w-full max-w-sm px-6">
+      <div className="flex flex-col items-center gap-6 w-full max-w-sm lg:max-w-lg px-6">
         <div className="text-center">
           <h1 className="text-xl font-bold text-white">Buat Laporan</h1>
           <p className="text-brand-muted text-sm mt-1">Pilih jenis laporan yang ingin kamu buat</p>
@@ -79,7 +79,7 @@ class LaporPageBase extends React.Component<RouterProps, State> {
     const title = mode === 'hilang' ? 'Lapor Barang Hilang' : 'Lapor Barang Temuan';
 
     return (
-      <div className="w-full max-w-sm px-6">
+      <div className="w-full max-w-sm lg:max-w-3xl px-6">
         <div className="flex items-center gap-3 mb-6">
           <button onClick={() => this.props.navigate(-1)} className="text-brand-muted hover:text-white transition-colors" aria-label="Kembali">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -99,7 +99,7 @@ class LaporPageBase extends React.Component<RouterProps, State> {
     const isChoose = mode === 'choose';
 
     return (
-      <div className="min-h-screen bg-brand-bg flex flex-col">
+      <div className="min-h-screen bg-brand-bg flex flex-col lg:pl-14">
         <main className={['flex-1 flex pb-24', isChoose ? 'items-center justify-center' : 'items-start justify-center pt-6'].join(' ')}>{isChoose ? this.renderChoose() : this.renderForm()}</main>
         <BottomNavbar />
       </div>

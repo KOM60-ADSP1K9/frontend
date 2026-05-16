@@ -195,9 +195,9 @@ class EditLaporanPageBase extends React.Component<RouterProps, State> {
     const kategoriOptions = kategori.map((k) => ({ value: k.id, label: k.name }));
 
     return (
-      <div className="min-h-screen bg-brand-bg flex flex-col">
+      <div className="min-h-screen bg-brand-bg flex flex-col lg:pl-14">
         {/* Header */}
-        <div className="flex items-center gap-3 px-4 pt-5 pb-4">
+        <div className="flex items-center gap-3 px-4 pt-5 pb-4 lg:pt-8 lg:max-w-2xl lg:mx-auto lg:w-full">
           <button onClick={() => this.props.navigate(-1)} className="w-9 h-9 flex items-center justify-center rounded-xl bg-brand-surface-alt text-brand-muted hover:text-white transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="15 18 9 12 15 6" />
@@ -206,13 +206,13 @@ class EditLaporanPageBase extends React.Component<RouterProps, State> {
           <h1 className="text-white font-bold text-base">Edit Laporan</h1>
         </div>
 
-        <form onSubmit={this.handleSubmit} noValidate className="flex-1 px-4 pb-32 flex flex-col gap-5 max-w-lg mx-auto w-full">
-          {/* Foto */}
-          <div className="flex flex-col gap-2">
+        <form onSubmit={this.handleSubmit} noValidate className="flex-1 px-4 pb-8 lg:pb-12 max-w-3xl mx-auto w-full flex flex-col gap-5 lg:flex-row lg:gap-8 lg:items-start">
+          {/* Kiri: foto (sticky di desktop) */}
+          <div className="lg:w-72 lg:flex-shrink-0 lg:sticky lg:top-8 flex flex-col gap-2">
             <span className="text-xs font-semibold tracking-widest uppercase text-brand-muted">Foto Barang</span>
             {photoPreview ? (
               <div className="relative rounded-xl overflow-hidden border border-brand-muted/20">
-                <img src={photoPreview} alt="Preview baru" className="w-full h-48 object-cover" />
+                <img src={photoPreview} alt="Preview baru" className="w-full h-48 lg:h-56 object-cover" />
                 <button type="button" onClick={this.handleRemoveNewPhoto} className="absolute top-2 right-2 bg-black/60 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs hover:bg-black/80">
                   ✕
                 </button>
@@ -223,10 +223,8 @@ class EditLaporanPageBase extends React.Component<RouterProps, State> {
                 <img
                   src={existingPhotoUrl}
                   alt="Foto saat ini"
-                  className="w-full h-48 object-cover"
-                  onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).style.display = 'none';
-                  }}
+                  className="w-full h-48 lg:h-56 object-cover"
+                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
                 />
                 <button type="button" onClick={() => this.galleryInputRef.current?.click()} className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-3 py-1.5 rounded-full hover:bg-black/90 transition-colors">
                   Ganti Foto
@@ -237,49 +235,64 @@ class EditLaporanPageBase extends React.Component<RouterProps, State> {
             <p className="text-xs text-brand-muted">Kosongkan jika tidak ingin mengganti foto</p>
           </div>
 
-          <InputField label="Nama Barang" name="barang_name" value={barang_name} error={errors.barang_name} required onChange={this.handleTextChange} />
+          {/* Kanan: field-field + CTA */}
+          <div className="flex flex-col gap-5 flex-1 pb-24 lg:pb-0">
+            <InputField label="Nama Barang" name="barang_name" value={barang_name} error={errors.barang_name} required onChange={this.handleTextChange} />
 
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="barang_description" className="text-xs font-semibold tracking-widest uppercase text-brand-muted">
-              Deskripsi <span className="text-rose-400">*</span>
-            </label>
-            <textarea
-              id="barang_description"
-              name="barang_description"
-              value={barang_description}
-              rows={3}
-              onChange={this.handleTextChange}
-              className={[
-                'w-full px-4 py-3.5 rounded-xl text-sm outline-none transition-all duration-200 resize-none',
-                'bg-brand-surface-alt text-white placeholder:text-brand-muted border focus:ring-2',
-                errors.barang_description ? 'border-rose-500/50 focus:border-rose-500/70 focus:ring-rose-500/10' : 'border-brand-muted/20 focus:border-brand-accent/50 focus:ring-brand-accent/10',
-              ].join(' ')}
-            />
-            {errors.barang_description && (
-              <p className="text-xs text-rose-400 flex items-center gap-1">
-                <span>⚠</span> {errors.barang_description}
-              </p>
-            )}
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="barang_description" className="text-xs font-semibold tracking-widest uppercase text-brand-muted">
+                Deskripsi <span className="text-rose-400">*</span>
+              </label>
+              <textarea
+                id="barang_description"
+                name="barang_description"
+                value={barang_description}
+                rows={4}
+                onChange={this.handleTextChange}
+                className={[
+                  'w-full px-4 py-3.5 rounded-xl text-sm outline-none transition-all duration-200 resize-none',
+                  'bg-brand-surface-alt text-white placeholder:text-brand-muted border focus:ring-2',
+                  errors.barang_description ? 'border-rose-500/50 focus:border-rose-500/70 focus:ring-rose-500/10' : 'border-brand-muted/20 focus:border-brand-accent/50 focus:ring-brand-accent/10',
+                ].join(' ')}
+              />
+              {errors.barang_description && (
+                <p className="text-xs text-rose-400 flex items-center gap-1">
+                  <span>⚠</span> {errors.barang_description}
+                </p>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+              <SelectField label="Kategori Barang" name="kategori_barang_id" value={kategori_barang_id} options={kategoriOptions} placeholder="Pilih kategori..." error={errors.kategori_barang_id} required onChange={this.handleSelectChange} />
+              <SelectField
+                label={isHilang ? 'Lokasi Kehilangan' : 'Lokasi Ditemukan'}
+                name="location_id"
+                value={location_id}
+                options={lokasiOptions}
+                placeholder="Pilih lokasi..."
+                error={errors.location_id}
+                required
+                onChange={this.handleSelectChange}
+              />
+            </div>
+
+            <div className="lg:w-1/2">
+              <InputField label={isHilang ? 'Tanggal Kehilangan' : 'Tanggal Ditemukan'} name="date" type="date" value={date} error={errors.date} required onChange={this.handleTextChange} />
+            </div>
+
+            {/* Submit inline di desktop */}
+            <button
+              onClick={this.handleSubmit}
+              disabled={isSubmitting}
+              className="hidden lg:flex w-full py-4 rounded-2xl bg-brand-accent text-brand-bg font-bold text-sm tracking-wide hover:opacity-90 active:scale-[0.98] transition-all duration-200 disabled:opacity-50 items-center justify-center gap-2"
+            >
+              {isSubmitting ? <LoadingSpinner size="sm" /> : 'Simpan Perubahan'}
+            </button>
           </div>
-
-          <SelectField label="Kategori Barang" name="kategori_barang_id" value={kategori_barang_id} options={kategoriOptions} placeholder="Pilih kategori..." error={errors.kategori_barang_id} required onChange={this.handleSelectChange} />
-
-          <SelectField
-            label={isHilang ? 'Lokasi Kehilangan' : 'Lokasi Ditemukan'}
-            name="location_id"
-            value={location_id}
-            options={lokasiOptions}
-            placeholder="Pilih lokasi..."
-            error={errors.location_id}
-            required
-            onChange={this.handleSelectChange}
-          />
-
-          <InputField label={isHilang ? 'Tanggal Kehilangan' : 'Tanggal Ditemukan'} name="date" type="date" value={date} error={errors.date} required onChange={this.handleTextChange} />
         </form>
 
-        {/* Submit CTA */}
-        <div className="fixed bottom-0 left-0 right-0 px-4 pb-6 pt-3 bg-brand-bg border-t border-white/5 max-w-lg mx-auto">
+        {/* Submit CTA — mobile only */}
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 px-4 pb-6 pt-3 bg-brand-bg border-t border-white/5">
           <button
             onClick={this.handleSubmit}
             disabled={isSubmitting}
