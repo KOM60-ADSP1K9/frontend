@@ -1,11 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { withRouter } from '../router/withRouter';
-import type { RouterProps } from '../router/withRouter';
-import { AuthApi } from '../api/AuthApi';
-import { LoadingSpinner } from '../components/common/LoadingSpinner';
-
-// ── Types ────────────────────────────────────────────────────────────────────
+import { withRouter } from '../../router/with.router';
+import type { RouterProps } from '../../router/with.router';
+import { AuthApi } from '../../api/auth.api';
+import { LoadingSpinner } from '../../components/common/loading.spinner';
 
 type VerifyStatus = 'loading' | 'success' | 'error';
 
@@ -13,8 +11,6 @@ interface State {
   status: VerifyStatus;
   message: string;
 }
-
-// ── Component ────────────────────────────────────────────────────────────────
 
 class VerifyEmailPageBase extends React.Component<RouterProps, State> {
   state: State = { status: 'loading', message: '' };
