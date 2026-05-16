@@ -4,7 +4,7 @@ import { LaporanService } from '../../services/laporan.service';
 
 interface Props {
   laporan: HomepageLaporanItem;
-  lokasiMap: Record<string, string>;
+  lokasiMap?: Record<string, string>;
   showStatus?: boolean;
   onClick?: (laporan: HomepageLaporanItem) => void;
 }
@@ -18,8 +18,9 @@ export class LaporanCard extends React.Component<Props> {
     const { laporan, lokasiMap, showStatus = false } = this.props;
     const { barang, type, status, created_at } = laporan;
 
+    const embeddedLokasi = type === 'hilang' ? laporan.lost_at_location : laporan.found_at_location;
     const locationId = type === 'hilang' ? laporan.lost_at_location_id : laporan.found_at_location_id;
-    const locationName = locationId ? (lokasiMap[locationId] ?? '—') : '—';
+    const locationName = embeddedLokasi?.name ?? (locationId && lokasiMap ? (lokasiMap[locationId] ?? '—') : '—');
 
     const isFound = type === 'temuan';
 
