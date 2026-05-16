@@ -171,8 +171,8 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
 
     const { barang, type, status, user, is_owned } = laporan;
     const isFound = type === 'temuan';
-    const locationId = isFound ? laporan.found_at_location_id : laporan.lost_at_location_id;
-    const locationName = locationId ? (lokasiMap[locationId] ?? '—') : '—';
+    const locationEmbedded = isFound ? laporan.found_at_location : laporan.lost_at_location;
+    const locationName = locationEmbedded?.name ?? (locationEmbedded?.id && lokasiMap[locationEmbedded.id]) || '—';
     const eventDate = isFound ? laporan.found_at_date : laporan.lost_at_date;
     const canUpdateStatus = is_owned && LaporanService.canUpdate(status);
     const canEditLaporan = is_owned && LaporanService.canEdit(status);

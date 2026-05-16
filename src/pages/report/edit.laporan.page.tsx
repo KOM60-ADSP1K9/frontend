@@ -70,7 +70,8 @@ class EditLaporanPageBase extends React.Component<RouterProps, State> {
     const lokasi = lokasiRes.status === 'fulfilled' && lokasiRes.value.status === 'success' ? lokasiRes.value.data : [];
     const kategori = kategoriRes.status === 'fulfilled' && kategoriRes.value.status === 'success' ? kategoriRes.value.data : [];
 
-    const locationId = passed.type === 'hilang' ? (passed.lost_at_location_id ?? '') : (passed.found_at_location_id ?? '');
+    const locationEmbedded = passed.type === 'hilang' ? passed.lost_at_location : passed.found_at_location;
+    const locationId = locationEmbedded?.id ?? '';
 
     const date = passed.type === 'hilang' ? (passed.lost_at_date ?? '') : (passed.found_at_date ?? '');
 
