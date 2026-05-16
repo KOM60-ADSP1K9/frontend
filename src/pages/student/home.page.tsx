@@ -1,25 +1,22 @@
 import React from 'react';
 import { Megaphone, CheckCircle, Search, History, Inbox } from 'lucide-react';
-import { withRouter } from '../router/withRouter';
-import type { RouterProps } from '../router/withRouter';
-import { BottomNavbar } from '../components/common/BottomNavbar';
-import { LaporanCard } from '../components/report/LaporanCard';
-import { LoadingSpinner } from '../components/common/LoadingSpinner';
-import { HomepageApi } from '../api/HomepageApi';
-import { LokasiApi } from '../api/LokasiApi';
-import { AuthApi } from '../api/AuthApi';
-import { Toast } from '../utils/toast';
-import type { HomepageLaporanItem, LaporanType } from '../types/report.types';
-import type { User } from '../types/auth.types';
-
-type TypeFilter = 'semua' | LaporanType;
-
-// ── Date helpers ───────────────────────────────────────────────────────────
+import { withRouter } from '../../router/with.router';
+import type { RouterProps } from '../../router/with.router';
+import { BottomNavbar } from '../../components/common/bottom.navbar';
+import { LaporanCard } from '../../components/report/report.card';
+import { LoadingSpinner } from '../../components/common/loading.spinner';
+import { LaporanApi } from '../../api/laporan.api';
+import { LokasiApi } from '../../api/lokasi.api';
+import { AuthApi } from '../../api/auth.api';
+import { Toast } from '../../utils/toast';
+import type { HomepageLaporanItem } from '../../types/report.types';
+import type { User } from '../../types/auth.types';
+import type { LaporanFilterType } from '../../types/ui.types';
 
 const DAY_SHORT = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
 
 function toLocalDateStr(date: Date): string {
-  return date.toLocaleDateString('sv-SE'); // yyyy-mm-dd
+  return date.toLocaleDateString('sv-SE');
 }
 
 function buildDateStrip(): { label: string; dayNum: number; dateStr: string }[] {
@@ -37,18 +34,14 @@ function buildDateStrip(): { label: string; dayNum: number; dateStr: string }[] 
   return days;
 }
 
-// ── State ──────────────────────────────────────────────────────────────────
-
 interface State {
   user: User | null;
   allLaporan: HomepageLaporanItem[];
   lokasiMap: Record<string, string>;
   isLoading: boolean;
   selectedDate: string;
-  typeFilter: TypeFilter;
+  typeFilter: LaporanFilterType;
 }
-
-// ── Icons ──────────────────────────────────────────────────────────────────
 
 class BellIcon extends React.Component {
   render() {
@@ -60,8 +53,6 @@ class BellIcon extends React.Component {
     );
   }
 }
-
-// ── Component ──────────────────────────────────────────────────────────────
 
 const DATE_STRIP = buildDateStrip();
 const TODAY_STR = toLocalDateStr(new Date());
@@ -77,11 +68,7 @@ class BerandaPageBase extends React.Component<RouterProps, State> {
   };
 
   async componentDidMount() {
-    const [userRes, lokasiRes, laporanRes] = await Promise.allSettled([
-      AuthApi.me(),
-      LokasiApi.getAll(),
-      HomepageApi.getAllLaporan({ limit: 100 }),
-    ]);
+    const [userRes, lokasiRes, laporanRes] = await Promise.allSettled([AuthApi.me(), LokasiApi.getAll(), LaporanApi.getAllLaporan({ limit: 100 })]);
 
     const nextState: Partial<State> = { isLoading: false };
 
@@ -91,7 +78,9 @@ class BerandaPageBase extends React.Component<RouterProps, State> {
 
     if (lokasiRes.status === 'fulfilled' && lokasiRes.value.status === 'success') {
       const map: Record<string, string> = {};
-      lokasiRes.value.data.forEach((l) => { map[l.id] = l.name; });
+      lokasiRes.value.data.forEach((l) => {
+        map[l.id] = l.name;
+      });
       nextState.lokasiMap = map;
     }
 
@@ -117,14 +106,13 @@ class BerandaPageBase extends React.Component<RouterProps, State> {
     });
   }
 
-  private handleTypeFilter = (typeFilter: TypeFilter) => {
+  private handleTypeFilter = (typeFilter: LaporanFilterType) => {
     this.setState({ typeFilter, selectedDate: TODAY_STR });
   };
 
   private handleDateSelect = (dateStr: string) => {
     this.setState({ selectedDate: dateStr });
   };
-
 
   private getInitial(user: User): string {
     return (user.nim ?? user.email)[0].toUpperCase();
@@ -146,16 +134,10 @@ class BerandaPageBase extends React.Component<RouterProps, State> {
     return (
       <div className="flex items-center justify-between px-5 pt-5 pb-4">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-full bg-rose-700 flex items-center justify-center text-white font-bold text-base flex-shrink-0">
-            {user ? this.getInitial(user) : '?'}
-          </div>
+          <div className="w-11 h-11 rounded-full bg-rose-700 flex items-center justify-center text-white font-bold text-base flex-shrink-0">{user ? this.getInitial(user) : '?'}</div>
           <div>
-            <p className="text-white font-semibold text-sm leading-tight">
-              {user ? this.getDisplayName(user) : '...'}
-            </p>
-            <p className="text-brand-muted text-xs mt-0.5">
-              {user ? this.getSubtitle(user) : ''}
-            </p>
+            <p className="text-white font-semibold text-sm leading-tight">{user ? this.getDisplayName(user) : '...'}</p>
+            <p className="text-brand-muted text-xs mt-0.5">{user ? this.getSubtitle(user) : ''}</p>
           </div>
         </div>
         <button className="text-brand-muted hover:text-white transition-colors relative">
@@ -201,17 +183,9 @@ class BerandaPageBase extends React.Component<RouterProps, State> {
       <div className="mx-4 mb-4 p-4 rounded-2xl bg-brand-surface-alt">
         <div className="grid grid-cols-4 gap-2">
           {actions.map((a) => (
-            <button
-              key={a.label}
-              onClick={a.onClick}
-              className="flex flex-col items-center gap-2 group"
-            >
-              <div className={`w-12 h-12 rounded-2xl ${a.bg} ${a.iconColor} flex items-center justify-center group-hover:brightness-125 transition-all duration-200`}>
-                {a.icon}
-              </div>
-              <span className="text-brand-muted text-[10px] font-medium text-center leading-tight">
-                {a.label}
-              </span>
+            <button key={a.label} onClick={a.onClick} className="flex flex-col items-center gap-2 group">
+              <div className={`w-12 h-12 rounded-2xl ${a.bg} ${a.iconColor} flex items-center justify-center group-hover:brightness-125 transition-all duration-200`}>{a.icon}</div>
+              <span className="text-brand-muted text-[10px] font-medium text-center leading-tight">{a.label}</span>
             </button>
           ))}
         </div>
@@ -221,7 +195,7 @@ class BerandaPageBase extends React.Component<RouterProps, State> {
 
   private renderTypeFilter() {
     const { typeFilter } = this.state;
-    const tabs: { key: TypeFilter; label: string }[] = [
+    const tabs: { key: LaporanFilterType; label: string }[] = [
       { key: 'semua', label: 'Semua' },
       { key: 'hilang', label: 'Hilang' },
       { key: 'temuan', label: 'Temuan' },
@@ -232,12 +206,7 @@ class BerandaPageBase extends React.Component<RouterProps, State> {
           <button
             key={t.key}
             onClick={() => this.handleTypeFilter(t.key)}
-            className={[
-              'px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 flex-shrink-0',
-              typeFilter === t.key
-                ? 'bg-brand-accent text-brand-bg'
-                : 'bg-brand-surface-alt text-brand-muted hover:text-white',
-            ].join(' ')}
+            className={['px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 flex-shrink-0', typeFilter === t.key ? 'bg-brand-accent text-brand-bg' : 'bg-brand-surface-alt text-brand-muted hover:text-white'].join(' ')}
           >
             {t.label}
           </button>
@@ -257,12 +226,9 @@ class BerandaPageBase extends React.Component<RouterProps, State> {
             <button
               key={d.dateStr}
               onClick={() => this.handleDateSelect(d.dateStr)}
-              className={[
-                'flex flex-col items-center gap-0.5 px-3.5 py-2.5 rounded-xl flex-shrink-0 transition-all duration-200',
-                isActive
-                  ? 'bg-brand-accent text-brand-bg'
-                  : 'bg-brand-surface-alt text-brand-muted hover:text-white',
-              ].join(' ')}
+              className={['flex flex-col items-center gap-0.5 px-3.5 py-2.5 rounded-xl flex-shrink-0 transition-all duration-200', isActive ? 'bg-brand-accent text-brand-bg' : 'bg-brand-surface-alt text-brand-muted hover:text-white'].join(
+                ' ',
+              )}
             >
               <span className="text-[10px] font-semibold tracking-wide">{d.label}</span>
               <span className="text-base font-bold">{d.dayNum}</span>
@@ -272,7 +238,6 @@ class BerandaPageBase extends React.Component<RouterProps, State> {
       </div>
     );
   }
-
 
   render() {
     const { isLoading, lokasiMap, selectedDate } = this.state;
@@ -315,13 +280,7 @@ class BerandaPageBase extends React.Component<RouterProps, State> {
           ) : (
             <div className="flex flex-col gap-2.5 max-w-lg mx-auto">
               {filtered.map((item) => (
-                <LaporanCard
-                  key={item.id}
-                  laporan={item}
-                  lokasiMap={lokasiMap}
-                  showStatus
-                  onClick={(l) => this.props.navigate(`/laporan/${l.id}`, { state: { laporan: l } })}
-                />
+                <LaporanCard key={item.id} laporan={item} lokasiMap={lokasiMap} showStatus onClick={(l) => this.props.navigate(`/laporan/${l.id}`, { state: { laporan: l } })} />
               ))}
             </div>
           )}
