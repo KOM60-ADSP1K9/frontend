@@ -1,11 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { withRouter } from '../../router/withRouter';
-import type { RouterProps } from '../../router/withRouter';
-import { InputField } from '../common/InputField';
-import { SelectField } from '../common/SelectField';
-import { LoadingSpinner } from '../common/LoadingSpinner';
-import { AuthApi } from '../../api/AuthApi';
+import { withRouter } from '../../router/with.router';
+import type { RouterProps } from '../../router/with.router';
+import { InputField } from '../common/input.field';
+import { SelectField } from '../common/select.field';
+import { LoadingSpinner } from '../common/loading.spinner';
+import { AuthApi } from '../../api/auth.api';
 import { Toast } from '../../utils/toast';
 import { Alert } from '../../utils/alert';
 
@@ -22,7 +22,7 @@ const FAKULTAS_OPTIONS = [
   { value: 'FEM', label: 'FEM — Ekonomi & Manajemen' },
   { value: 'FEMA', label: 'FEMA — Ekologi Manusia' },
   { value: 'SV', label: 'SV — Sekolah Vokasi' },
-  { value: 'SSMI', label: 'SSMI — Sekolah Sains Data, Matematika, dan Informatika'}
+  { value: 'SSMI', label: 'SSMI — Sekolah Sains Data, Matematika, dan Informatika' },
 ];
 
 const DEPARTEMEN_OPTIONS: Record<string, { value: string; label: string }[]> = {
@@ -59,9 +59,7 @@ const DEPARTEMEN_OPTIONS: Record<string, { value: string; label: string }[]> = {
 };
 
 // Fallback untuk fakultas yang belum punya mapping
-const getAllDepartemen = () => [
-  { value: 'Lainnya', label: 'Lainnya' },
-];
+const getAllDepartemen = () => [{ value: 'Lainnya', label: 'Lainnya' }];
 
 // ── State ─────────────────────────────────────────────────────────────────────
 
@@ -181,23 +179,11 @@ class RegisterFormBase extends React.Component<RouterProps, State> {
   render() {
     const { email, password, confirmPassword, nim, fakultas, departemen, isLoading, showPassword, showConfirm, errors } = this.state;
 
-    const departemenOptions = fakultas
-      ? (DEPARTEMEN_OPTIONS[fakultas] ?? getAllDepartemen())
-      : [];
+    const departemenOptions = fakultas ? (DEPARTEMEN_OPTIONS[fakultas] ?? getAllDepartemen()) : [];
 
     return (
       <form onSubmit={this.handleSubmit} noValidate className="flex flex-col gap-4">
-        <InputField
-          label="Email IPB"
-          name="email"
-          type="email"
-          value={email}
-          placeholder="student@apps.ipb.ac.id"
-          autoComplete="email"
-          error={errors.email}
-          required
-          onChange={this.handleChange}
-        />
+        <InputField label="Email IPB" name="email" type="email" value={email} placeholder="student@apps.ipb.ac.id" autoComplete="email" error={errors.email} required onChange={this.handleChange} />
 
         <InputField
           label="Password"
@@ -225,37 +211,12 @@ class RegisterFormBase extends React.Component<RouterProps, State> {
           rightElement={this.eyeToggle(showConfirm, this.toggleConfirm)}
         />
 
-        <InputField
-          label="NIM"
-          name="nim"
-          value={nim}
-          placeholder="G641XXXXX"
-          error={errors.nim}
-          required
-          onChange={this.handleChange}
-        />
+        <InputField label="NIM" name="nim" value={nim} placeholder="G641XXXXX" error={errors.nim} required onChange={this.handleChange} />
 
         {/* Fakultas & Departemen side by side */}
         <div className="grid grid-cols-2 gap-3">
-          <SelectField
-            label="Fakultas"
-            name="fakultas"
-            value={fakultas}
-            options={FAKULTAS_OPTIONS}
-            error={errors.fakultas}
-            required
-            onChange={this.handleSelect}
-          />
-          <SelectField
-            label="Departemen"
-            name="departemen"
-            value={departemen}
-            options={departemenOptions}
-            placeholder={fakultas ? 'Pilih...' : 'Pilih fakultas dulu'}
-            error={errors.departemen}
-            required
-            onChange={this.handleSelect}
-          />
+          <SelectField label="Fakultas" name="fakultas" value={fakultas} options={FAKULTAS_OPTIONS} error={errors.fakultas} required onChange={this.handleSelect} />
+          <SelectField label="Departemen" name="departemen" value={departemen} options={departemenOptions} placeholder={fakultas ? 'Pilih...' : 'Pilih fakultas dulu'} error={errors.departemen} required onChange={this.handleSelect} />
         </div>
 
         <button

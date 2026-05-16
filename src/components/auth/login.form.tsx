@@ -1,14 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { withRouter } from '../../router/withRouter';
-import type { RouterProps } from '../../router/withRouter';
-import { InputField } from '../common/InputField';
-import { LoadingSpinner } from '../common/LoadingSpinner';
-import { AuthApi } from '../../api/AuthApi';
+import { withRouter } from '../../router/with.router';
+import type { RouterProps } from '../../router/with.router';
+import { InputField } from '../common/input.field';
+import { LoadingSpinner } from '../common/loading.spinner';
+import { AuthApi } from '../../api/auth.api';
 import { Toast } from '../../utils/toast';
 import { Alert } from '../../utils/alert';
-
-// ── Icons ─────────────────────────────────────────────────────────────────────
 
 class UserIcon extends React.Component {
   render() {
@@ -41,8 +39,6 @@ class EyeIcon extends React.Component<{ open: boolean }> {
   }
 }
 
-// ── State ─────────────────────────────────────────────────────────────────────
-
 interface State {
   email: string;
   password: string;
@@ -50,8 +46,6 @@ interface State {
   showPassword: boolean;
   errors: { email?: string; password?: string };
 }
-
-// ── Component ─────────────────────────────────────────────────────────────────
 
 class LoginFormBase extends React.Component<RouterProps, State> {
   state: State = {
@@ -117,18 +111,7 @@ class LoginFormBase extends React.Component<RouterProps, State> {
 
     return (
       <form onSubmit={this.handleSubmit} noValidate className="flex flex-col gap-5">
-        <InputField
-          label="Student ID or Email"
-          name="email"
-          type="email"
-          value={email}
-          placeholder="nim@apps.ipb.ac.id"
-          autoComplete="email"
-          error={errors.email}
-          required
-          onChange={this.handleChange}
-          rightElement={<UserIcon />}
-        />
+        <InputField label="Student ID or Email" name="email" type="email" value={email} placeholder="nim@apps.ipb.ac.id" autoComplete="email" error={errors.email} required onChange={this.handleChange} rightElement={<UserIcon />} />
 
         <InputField
           label="Password"
@@ -157,11 +140,7 @@ class LoginFormBase extends React.Component<RouterProps, State> {
           disabled={isLoading}
           className="w-full py-4 mt-1 rounded-2xl bg-brand-accent text-brand-bg font-bold text-sm tracking-wide hover:opacity-90 active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
-          {isLoading ? (
-            <LoadingSpinner size="sm" />
-          ) : (
-            <>Login →</>
-          )}
+          {isLoading ? <LoadingSpinner size="sm" /> : <>Login →</>}
         </button>
 
         <p className="text-center text-sm text-brand-muted pt-1">
