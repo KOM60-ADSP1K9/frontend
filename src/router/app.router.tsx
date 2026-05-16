@@ -1,15 +1,15 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import ProtectedRoute from './ProtectedRoute';
-import { LoginPage } from '../pages/LoginPage';
-import { RegisterPage } from '../pages/RegisterPage';
-import { ProfilePage } from '../pages/ProfilePage';
-import { VerifyEmailPage } from '../pages/VerifyEmailPage';
-import { BerandaPage } from '../pages/BerandaPage';
-import { RiwayatPage } from '../pages/RiwayatPage';
-import { LaporPage } from '../pages/LaporPage';
-import { LaporanDetailPage } from '../pages/LaporanDetailPage';
-import { EditLaporanPage } from '../pages/EditLaporanPage';
-import { LaporanSayaPage } from '../pages/LaporanSayaPage';
+import ProtectedRoute from './protected.route';
+import { LoginPage } from '../pages/auth/login.page';
+import { RegisterPage } from '../pages/auth/register.page';
+import { ProfilePage } from '../pages/auth/profile.page';
+import { VerifyEmailPage } from '../pages/auth/verify.email.page';
+import { BerandaPage } from '../pages/student/home.page';
+import { RiwayatPage } from '../pages/report/cari.laporan.page';
+import { LaporPage } from '../pages/report/lapor.page';
+import { LaporanDetailPage } from '../pages/report/laporan.detail.page';
+import { EditLaporanPage } from '../pages/report/edit.laporan.page';
+import { LaporanSayaPage } from '../pages/report/laporan.saya.page';
 
 const AppRouter = () => (
   <BrowserRouter>
@@ -26,7 +26,7 @@ const AppRouter = () => (
         }
       />
       <Route
-        path="/riwayat"
+        path="/laporan"
         element={
           <ProtectedRoute>
             <RiwayatPage />
