@@ -10,8 +10,12 @@ export class LaporanApi {
         ...(params?.status && { status: params.status }),
         page: params?.page ?? 1,
         limit: params?.limit ?? 20,
+        ...(params?.date && { date: params.date }),
+        ...(params?.date_from && { date_from: params.date_from }),
+        ...(params?.date_to && { date_to: params.date_to }),
       },
     });
+    console.log('Fetched laporan:', res.data);
     return res.data;
   }
 
@@ -22,6 +26,9 @@ export class LaporanApi {
         ...(params?.status && { status: params.status }),
         page: params?.page ?? 1,
         limit: params?.limit ?? 20,
+        ...(params?.date && { date: params.date }),
+        ...(params?.date_from && { date_from: params.date_from }),
+        ...(params?.date_to && { date_to: params.date_to }),
       },
     });
     return res.data;
