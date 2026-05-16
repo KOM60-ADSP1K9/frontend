@@ -204,7 +204,7 @@ class FoundReportFormBase extends React.Component<RouterProps, State> {
       }
 
       Toast.success('Laporan temuan berhasil dibuat!');
-      this.props.navigate('/riwayat');
+      this.props.navigate('/laporan-saya');
     } catch (err: unknown) {
       Toast.dismiss(toastId);
       const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error ?? 'Gagal membuat laporan. Coba lagi.';
@@ -224,7 +224,7 @@ class FoundReportFormBase extends React.Component<RouterProps, State> {
             Foto Barang <span className="text-rose-400">*</span>
           </span>
           <div className="relative rounded-xl overflow-hidden border border-brand-muted/20">
-            <img src={photoPreview} alt="Preview" className="w-full h-48 object-cover" />
+            <img src={photoPreview} alt="Preview" className="w-full h-48 lg:min-h-[260px] object-cover" />
             <button type="button" onClick={this.handleRemovePhoto} className="absolute top-2 right-2 bg-black/60 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs hover:bg-black/80 transition-colors">
               ✕
             </button>
@@ -266,7 +266,7 @@ class FoundReportFormBase extends React.Component<RouterProps, State> {
             <button
               type="button"
               onClick={() => this.galleryInputRef.current?.click()}
-              className="w-full flex flex-col items-center gap-2 py-6 rounded-xl border border-dashed border-brand-muted/40 bg-brand-surface-alt text-brand-muted hover:border-brand-accent/60 hover:text-brand-accent transition-colors"
+              className="w-full flex flex-col items-center justify-center gap-3 py-6 lg:py-0 lg:min-h-[260px] rounded-xl border border-dashed border-brand-muted/40 bg-brand-surface-alt text-brand-muted hover:border-brand-accent/60 hover:text-brand-accent transition-colors"
             >
               <ImageIcon />
               <span className="text-xs font-medium">Klik untuk memilih foto</span>
@@ -300,66 +300,74 @@ class FoundReportFormBase extends React.Component<RouterProps, State> {
     }
 
     return (
-      <form onSubmit={this.handleSubmit} noValidate className="flex flex-col gap-5">
-        {this.renderPhotoUpload()}
-
-        <InputField label="Nama Barang" name="barang_name" value={barang_name} placeholder="Contoh: Tas ransel hitam" error={errors.barang_name} required onChange={this.handleTextChange} />
-
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="barang_description" className="text-xs font-semibold tracking-widest uppercase text-brand-muted">
-            Deskripsi <span className="text-rose-400">*</span>
-          </label>
-          <textarea
-            id="barang_description"
-            name="barang_description"
-            value={barang_description}
-            placeholder="Ciri-ciri barang, warna, merek, kondisi, dsb."
-            rows={3}
-            onChange={this.handleTextChange}
-            className={[
-              'w-full px-4 py-3.5 rounded-xl text-sm outline-none transition-all duration-200 resize-none',
-              'bg-brand-surface-alt text-white placeholder:text-brand-muted',
-              'border focus:ring-2',
-              errors.barang_description ? 'border-rose-500/50 focus:border-rose-500/70 focus:ring-rose-500/10' : 'border-brand-muted/20 focus:border-brand-accent/50 focus:ring-brand-accent/10',
-            ].join(' ')}
-          />
-          {errors.barang_description && (
-            <p className="text-xs text-rose-400 flex items-center gap-1">
-              <span>⚠</span> {errors.barang_description}
-            </p>
-          )}
+      <form onSubmit={this.handleSubmit} noValidate className="flex flex-col gap-5 lg:flex-row lg:gap-8 lg:items-start">
+        {/* Kiri: foto (sticky di desktop) */}
+        <div className="lg:w-72 lg:flex-shrink-0 lg:sticky lg:top-8">
+          {this.renderPhotoUpload()}
         </div>
 
-        <SelectField label="Kategori Barang" name="kategori_barang_id" value={kategori_barang_id} options={kategoriOptions} placeholder="Pilih kategori..." error={errors.kategori_barang_id} required onChange={this.handleSelectChange} />
+        {/* Kanan: field-field */}
+        <div className="flex flex-col gap-5 flex-1">
+          <InputField label="Nama Barang" name="barang_name" value={barang_name} placeholder="Contoh: Tas ransel hitam" error={errors.barang_name} required onChange={this.handleTextChange} />
 
-        {!isStaff && (
-          <SelectField
-            label="Lokasi Ditemukan"
-            name="found_at_location_id"
-            value={found_at_location_id}
-            options={lokasiOptions}
-            placeholder="Pilih lokasi..."
-            error={errors.found_at_location_id}
-            required
-            onChange={this.handleSelectChange}
-          />
-        )}
-
-        {isStaff && (
-          <div className="px-4 py-3 rounded-xl bg-sky-500/10 border border-sky-500/20">
-            <p className="text-sky-400 text-xs font-medium">Lokasi ditemukan otomatis diisi berdasarkan lokasi tugas kamu.</p>
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="barang_description" className="text-xs font-semibold tracking-widest uppercase text-brand-muted">
+              Deskripsi <span className="text-rose-400">*</span>
+            </label>
+            <textarea
+              id="barang_description"
+              name="barang_description"
+              value={barang_description}
+              placeholder="Ciri-ciri barang, warna, merek, kondisi, dsb."
+              rows={4}
+              onChange={this.handleTextChange}
+              className={[
+                'w-full px-4 py-3.5 rounded-xl text-sm outline-none transition-all duration-200 resize-none',
+                'bg-brand-surface-alt text-white placeholder:text-brand-muted',
+                'border focus:ring-2',
+                errors.barang_description ? 'border-rose-500/50 focus:border-rose-500/70 focus:ring-rose-500/10' : 'border-brand-muted/20 focus:border-brand-accent/50 focus:ring-brand-accent/10',
+              ].join(' ')}
+            />
+            {errors.barang_description && (
+              <p className="text-xs text-rose-400 flex items-center gap-1">
+                <span>⚠</span> {errors.barang_description}
+              </p>
+            )}
           </div>
-        )}
 
-        <InputField label="Tanggal Ditemukan" name="found_at_date" type="date" value={found_at_date} error={errors.found_at_date} required onChange={this.handleTextChange} />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <SelectField label="Kategori Barang" name="kategori_barang_id" value={kategori_barang_id} options={kategoriOptions} placeholder="Pilih kategori..." error={errors.kategori_barang_id} required onChange={this.handleSelectChange} />
 
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full py-4 mt-1 rounded-2xl bg-brand-accent text-brand-bg font-bold text-sm tracking-wide hover:opacity-90 active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-        >
-          {isLoading ? <LoadingSpinner size="sm" /> : 'Kirim Laporan'}
-        </button>
+            {!isStaff ? (
+              <SelectField
+                label="Lokasi Ditemukan"
+                name="found_at_location_id"
+                value={found_at_location_id}
+                options={lokasiOptions}
+                placeholder="Pilih lokasi..."
+                error={errors.found_at_location_id}
+                required
+                onChange={this.handleSelectChange}
+              />
+            ) : (
+              <div className="px-4 py-3 rounded-xl bg-sky-500/10 border border-sky-500/20 self-end">
+                <p className="text-sky-400 text-xs font-medium">Lokasi ditemukan otomatis diisi berdasarkan lokasi tugas kamu.</p>
+              </div>
+            )}
+          </div>
+
+          <div className="lg:w-1/2">
+            <InputField label="Tanggal Ditemukan" name="found_at_date" type="date" value={found_at_date} error={errors.found_at_date} required onChange={this.handleTextChange} />
+          </div>
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full py-4 mt-1 rounded-2xl bg-brand-accent text-brand-bg font-bold text-sm tracking-wide hover:opacity-90 active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            {isLoading ? <LoadingSpinner size="sm" /> : 'Kirim Laporan'}
+          </button>
+        </div>
       </form>
     );
   }
