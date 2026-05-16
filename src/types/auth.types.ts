@@ -17,14 +17,22 @@ export interface LoginRequest {
 
 // ── Response data types ────────────────────────────────────────────────────
 
+export interface SupervisedAt {
+  id: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+}
+
 export interface User {
   id: string;
   email: string;
-  role: string;
+  role: 'MAHASISWA' | 'STAFF';
   nim: string | null;
   fakultas: string | null;
   departemen: string | null;
   nip: string | null;
+  supervised_at: SupervisedAt | null;
   email_verified_at: string | null;
   created_at: string | null;
   updated_at: string | null;
