@@ -96,7 +96,7 @@ class LoginFormBase extends React.Component<RouterProps, State> {
       localStorage.setItem('access_token', res.data.access_token);
       Toast.dismiss(toastId);
       Toast.success('Login berhasil! Selamat datang 👋');
-      this.props.navigate('/profile');
+      this.props.navigate('/');
     } catch (err: unknown) {
       Toast.dismiss(toastId);
       const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error ?? 'Login gagal, periksa kembali email dan password Anda.';
