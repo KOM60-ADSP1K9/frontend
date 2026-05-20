@@ -1,8 +1,9 @@
 import React from 'react';
-import { Home, ClipboardList, ScanLine, UserCircle } from 'lucide-react';
+import { Home, ClipboardList, ScanLine, UserCircle, Sun, Moon } from 'lucide-react';
 import { withRouter } from '../../router/with.router';
 import type { RouterProps } from '../../router/with.router';
 import { LaporBottomSheet } from './lapor.bottom.sheet';
+import { ThemeManager } from '../../utils/theme';
 
 interface NavTab {
   key: string;
@@ -13,10 +14,11 @@ interface NavTab {
 
 interface State {
   sheetOpen: boolean;
+  theme: 'dark' | 'light';
 }
 
 class BottomNavbarBase extends React.Component<RouterProps, State> {
-  state: State = { sheetOpen: false };
+  state: State = { sheetOpen: false, theme: ThemeManager.get() };
 
   private readonly allTabs: NavTab[] = [
     { key: 'beranda', path: '/', label: 'BERANDA', icon: <Home size={22} /> },
@@ -34,6 +36,11 @@ class BottomNavbarBase extends React.Component<RouterProps, State> {
       return;
     }
     if (tab.path) this.props.navigate(tab.path);
+  };
+
+  private handleThemeToggle = () => {
+    const theme = ThemeManager.toggle();
+    this.setState({ theme });
   };
 
   private isTabActive(tab: NavTab): boolean {
@@ -80,7 +87,7 @@ class BottomNavbarBase extends React.Component<RouterProps, State> {
   }
 
   render() {
-    const { sheetOpen } = this.state;
+    const { sheetOpen, theme } = this.state;
 
     return (
       <>
@@ -110,6 +117,16 @@ class BottomNavbarBase extends React.Component<RouterProps, State> {
             {this.sidebarTopTabs.map((tab) => this.renderSidebarItem(tab))}
           </div>
           <div className="flex flex-col w-full mt-auto">
+            {/* Theme toggle */}
+            <button
+              type="button"
+              onClick={this.handleThemeToggle}
+              className="flex flex-col items-center gap-1 py-3.5 w-full hover:bg-white/5 transition-colors text-brand-muted"
+              title={theme === 'dark' ? 'Mode Terang' : 'Mode Gelap'}
+            >
+              {theme === 'dark' ? <Sun size={22} /> : <Moon size={22} />}
+              <span className="text-[7px] font-bold tracking-widest">TEMA</span>
+            </button>
             {this.sidebarBottomTabs.map((tab) => this.renderSidebarItem(tab))}
           </div>
         </nav>
