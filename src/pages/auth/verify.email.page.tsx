@@ -37,13 +37,11 @@ class VerifyEmailPageBase extends React.Component<RouterProps, State> {
     }
   }
 
-  // ── Render helpers ────────────────────────────────────────────────────────
-
   private renderLoading() {
     return (
       <div className="flex flex-col items-center gap-4 py-6">
         <LoadingSpinner size="lg" />
-        <p className="text-gray-500 font-medium">Memverifikasi email Anda...</p>
+        <p className="text-brand-muted font-medium">Memverifikasi email Anda...</p>
       </div>
     );
   }
@@ -51,17 +49,17 @@ class VerifyEmailPageBase extends React.Component<RouterProps, State> {
   private renderSuccess() {
     return (
       <div className="flex flex-col items-center gap-5 py-4">
-        <div className="w-20 h-20 rounded-full bg-brand-lighter flex items-center justify-center">
-          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#79D7F0" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <div className="w-20 h-20 rounded-full bg-emerald-500/15 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400">
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
             <polyline points="22 4 12 14.01 9 11.01" />
           </svg>
         </div>
         <div className="text-center">
-          <h2 className="text-xl font-bold text-gray-800">Email Terverifikasi!</h2>
-          <p className="text-sm text-gray-500 mt-1">{this.state.message}</p>
+          <h2 className="text-xl font-bold text-brand-text">Email Terverifikasi!</h2>
+          <p className="text-sm text-brand-muted mt-1">{this.state.message}</p>
         </div>
-        <Link to="/login" className="mt-2 px-8 py-3 rounded-xl bg-brand-primary text-white font-bold text-sm hover:bg-brand-secondary active:scale-95 transition-all shadow-lg shadow-brand-primary/25">
+        <Link to="/login" className="mt-2 px-8 py-3 rounded-xl bg-brand-accent text-brand-bg font-bold text-sm hover:opacity-90 active:scale-95 transition-all">
           Masuk Sekarang
         </Link>
       </div>
@@ -71,18 +69,18 @@ class VerifyEmailPageBase extends React.Component<RouterProps, State> {
   private renderError() {
     return (
       <div className="flex flex-col items-center gap-5 py-4">
-        <div className="w-20 h-20 rounded-full bg-rose-50 flex items-center justify-center">
-          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <div className="w-20 h-20 rounded-full bg-rose-500/15 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-rose-400">
             <circle cx="12" cy="12" r="10" />
             <line x1="15" y1="9" x2="9" y2="15" />
             <line x1="9" y1="9" x2="15" y2="15" />
           </svg>
         </div>
         <div className="text-center">
-          <h2 className="text-xl font-bold text-gray-800">Verifikasi Gagal</h2>
-          <p className="text-sm text-gray-500 mt-1">{this.state.message}</p>
+          <h2 className="text-xl font-bold text-brand-text">Verifikasi Gagal</h2>
+          <p className="text-sm text-brand-muted mt-1">{this.state.message}</p>
         </div>
-        <Link to="/login" className="mt-2 px-8 py-3 rounded-xl border-2 border-brand-primary text-brand-primary font-bold text-sm hover:bg-brand-bg active:scale-95 transition-all">
+        <Link to="/login" className="mt-2 px-8 py-3 rounded-xl border-2 border-brand-accent text-brand-accent font-bold text-sm hover:bg-brand-surface-alt active:scale-95 transition-all">
           Kembali ke Halaman Masuk
         </Link>
       </div>
@@ -94,16 +92,16 @@ class VerifyEmailPageBase extends React.Component<RouterProps, State> {
 
     return (
       <div className="min-h-screen bg-brand-bg flex items-center justify-center px-5">
-        <div className="bg-white rounded-3xl shadow-xl shadow-brand-primary/10 p-8 w-full max-w-sm">
+        <div className="bg-brand-surface rounded-3xl shadow-xl shadow-black/20 p-8 w-full max-w-sm">
           {/* Logo */}
           <div className="flex flex-col items-center mb-6">
-            <div className="w-12 h-12 rounded-2xl bg-brand-primary flex items-center justify-center shadow-md shadow-brand-primary/30 mb-3">
+            <div className="w-12 h-12 rounded-2xl bg-brand-accent flex items-center justify-center shadow-md mb-3">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
                 <polyline points="22,6 12,13 2,6" />
               </svg>
             </div>
-            <h1 className="text-lg font-extrabold text-gray-800">Verifikasi Email</h1>
+            <h1 className="text-lg font-extrabold text-brand-text">Verifikasi Email</h1>
           </div>
 
           {status === 'loading' && this.renderLoading()}

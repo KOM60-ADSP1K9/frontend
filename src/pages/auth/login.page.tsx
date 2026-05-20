@@ -18,7 +18,7 @@ export class LoginPage extends React.Component {
               </div>
             </div>
 
-            <h1 className="text-4xl font-bold text-white mb-3 tracking-tight">
+            <h1 className="text-4xl font-bold text-brand-text mb-3 tracking-tight">
               Lost &amp; Found IPB
             </h1>
             <p className="text-brand-muted text-lg leading-relaxed mb-10">
@@ -33,7 +33,7 @@ export class LoginPage extends React.Component {
               ].map((f) => (
                 <div key={f.title} className="flex items-start gap-3.5 bg-brand-surface-alt/60 rounded-2xl px-4 py-3.5 border border-white/5">
                   <div>
-                    <p className="text-white text-sm font-semibold leading-tight">{f.title}</p>
+                    <p className="text-brand-text text-sm font-semibold leading-tight">{f.title}</p>
                     <p className="text-brand-muted text-xs mt-0.5 leading-relaxed">{f.desc}</p>
                   </div>
                 </div>
@@ -53,7 +53,7 @@ export class LoginPage extends React.Component {
             </div>
 
             <div className="hidden md:block mb-8">
-              <h2 className="text-3xl font-bold text-white tracking-tight">Selamat datang</h2>
+              <h2 className="text-3xl font-bold text-brand-text tracking-tight">Selamat datang</h2>
               <p className="text-brand-muted text-sm mt-1.5">Masuk untuk melanjutkan ke Lost &amp; Found IPB</p>
             </div>
 

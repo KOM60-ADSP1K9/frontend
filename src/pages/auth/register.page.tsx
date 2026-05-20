@@ -20,7 +20,7 @@ export class RegisterPage extends React.Component {
               </div>
             </div>
 
-            <h1 className="text-3xl font-bold text-white mb-3 tracking-tight">Lost &amp; Found IPB</h1>
+            <h1 className="text-3xl font-bold text-brand-text mb-3 tracking-tight">Lost &amp; Found IPB</h1>
             <p className="text-brand-muted text-base leading-relaxed mb-8">
               Bergabung dan bantu sesama civitas akademika IPB menemukan barang mereka.
             </p>
@@ -36,7 +36,7 @@ export class RegisterPage extends React.Component {
                   <span className="w-9 h-9 rounded-xl bg-brand-accent/15 text-brand-accent text-xs font-bold flex items-center justify-center flex-shrink-0">
                     {s.step}
                   </span>
-                  <p className="text-white text-sm font-medium leading-tight">{s.text}</p>
+                  <p className="text-brand-text text-sm font-medium leading-tight">{s.text}</p>
                 </div>
               ))}
             </div>
@@ -56,7 +56,7 @@ export class RegisterPage extends React.Component {
 
             {/* Desktop heading */}
             <div className="hidden md:block mb-6">
-              <h2 className="text-3xl font-bold text-white tracking-tight">Buat Akun Baru</h2>
+              <h2 className="text-3xl font-bold text-brand-text tracking-tight">Buat Akun Baru</h2>
               <p className="text-brand-muted text-sm mt-1.5">Daftar menggunakan email IPB kamu</p>
             </div>
 
