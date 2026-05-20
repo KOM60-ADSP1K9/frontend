@@ -17,6 +17,7 @@ import type { LaporanFilterType, ActiveFilters } from '../../types/ui.types';
 interface State {
   laporan: HomepageLaporanItem[];
   lokasiMap: Record<string, string>;
+  kategoriMap: Record<string, string>;
   kategoriList: KategoriBarang[];
   isLoading: boolean;
   typeFilter: LaporanFilterType;
@@ -45,6 +46,7 @@ class LaporanSayaPageBase extends React.Component<RouterProps, State> {
   state: State = {
     laporan: [],
     lokasiMap: {},
+    kategoriMap: {},
     kategoriList: [],
     isLoading: true,
     typeFilter: 'semua',
@@ -77,6 +79,9 @@ class LaporanSayaPageBase extends React.Component<RouterProps, State> {
 
     if (kategoriRes.status === 'fulfilled' && kategoriRes.value.status === 'success') {
       next.kategoriList = kategoriRes.value.data;
+      const kMap: Record<string, string> = {};
+      kategoriRes.value.data.forEach((k) => { kMap[k.id] = k.name; });
+      next.kategoriMap = kMap;
     }
 
     this.setState(next as State);
@@ -385,7 +390,7 @@ class LaporanSayaPageBase extends React.Component<RouterProps, State> {
   }
 
   render() {
-    const { isLoading, lokasiMap, updatingId, search, activeFilters } = this.state;
+    const { isLoading, lokasiMap, kategoriMap, updatingId, search, activeFilters } = this.state;
     const filtered = this.getFiltered();
     const hasAnyFilter = search.trim() || activeFilters.date_from || activeFilters.date_to || activeFilters.kategoriId || activeFilters.status;
 
@@ -439,7 +444,7 @@ class LaporanSayaPageBase extends React.Component<RouterProps, State> {
                         <LoadingSpinner size="sm" />
                       </div>
                     )}
-                    <LaporanCard laporan={item} lokasiMap={lokasiMap} showStatus onClick={this.handleCardClick} />
+                    <LaporanCard laporan={item} lokasiMap={lokasiMap} kategoriMap={kategoriMap} showStatus onClick={this.handleCardClick} />
                     {item.is_owned && LaporanService.canUpdate(item.status) && (
                       <button onClick={() => this.setState({ sheetLaporan: item })} className="absolute top-3 right-3 text-brand-muted hover:text-brand-accent transition-colors" aria-label="Update status">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
