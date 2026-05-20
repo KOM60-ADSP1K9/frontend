@@ -166,11 +166,11 @@ class BerandaPageBase extends React.Component<RouterProps, State> {
         <div className="flex items-center gap-3">
           <div className="w-11 h-11 rounded-full bg-rose-700 flex items-center justify-center text-white font-bold text-base flex-shrink-0">{user ? this.getInitial(user) : '?'}</div>
           <div>
-            <p className="text-white font-semibold text-sm leading-tight">{user ? this.getDisplayName(user) : '...'}</p>
+            <p className="text-brand-text font-semibold text-sm leading-tight">{user ? this.getDisplayName(user) : '...'}</p>
             <p className="text-brand-muted text-xs mt-0.5">{user ? this.getSubtitle(user) : ''}</p>
           </div>
         </div>
-        <button className="text-brand-muted hover:text-white transition-colors relative">
+        <button className="text-brand-muted hover:text-brand-text transition-colors relative">
           <BellIcon />
         </button>
       </div>
@@ -206,10 +206,10 @@ class BerandaPageBase extends React.Component<RouterProps, State> {
           </div>
           <div className="flex items-center justify-between px-5 py-3">
             <div>
-              <p className="text-white font-semibold text-sm">{loc?.name ?? 'Lokasi'}</p>
+              <p className="text-brand-text font-semibold text-sm">{loc?.name ?? 'Lokasi'}</p>
               <p className="text-brand-muted text-xs">{selectedLocationLaporan.length} laporan</p>
             </div>
-            <button onClick={this.handlePanelClose} className="text-brand-muted hover:text-white p-1">
+            <button onClick={this.handlePanelClose} className="text-brand-muted hover:text-brand-text p-1">
               <X size={18} />
             </button>
           </div>
@@ -255,7 +255,7 @@ class BerandaPageBase extends React.Component<RouterProps, State> {
           <button
             key={t.key}
             onClick={() => this.handleTypeFilter(t.key)}
-            className={['px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 flex-shrink-0', typeFilter === t.key ? 'bg-brand-accent text-brand-bg' : 'bg-brand-surface-alt text-brand-muted hover:text-white'].join(' ')}
+            className={['px-4 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 flex-shrink-0', typeFilter === t.key ? 'bg-brand-accent text-brand-bg' : 'bg-brand-surface-alt text-brand-muted hover:text-brand-text'].join(' ')}
           >
             {t.label}
           </button>
@@ -279,7 +279,7 @@ class BerandaPageBase extends React.Component<RouterProps, State> {
               onClick={() => this.handleDateSelect(d.dateStr)}
               className={[
                 'flex flex-col items-center gap-0.5 w-14 py-2.5 rounded-xl flex-shrink-0 transition-all duration-200',
-                isActive ? 'bg-brand-accent text-brand-bg' : isToday ? 'bg-brand-surface-alt text-white ring-1 ring-brand-accent/50' : 'bg-brand-surface-alt text-brand-muted hover:text-white',
+                isActive ? 'bg-brand-accent text-brand-bg' : isToday ? 'bg-brand-surface-alt text-brand-text ring-1 ring-brand-accent/50' : 'bg-brand-surface-alt text-brand-muted hover:text-brand-text',
               ].join(' ')}
             >
               <span className="text-[10px] font-semibold tracking-wide">{d.label}</span>
@@ -304,7 +304,7 @@ class BerandaPageBase extends React.Component<RouterProps, State> {
       <div className="flex flex-col items-center gap-3 py-12 text-center">
         <Inbox size={36} className="text-brand-muted" />
         <div>
-          <p className="text-white text-sm font-semibold">Tidak ada laporan</p>
+          <p className="text-brand-text text-sm font-semibold">Tidak ada laporan</p>
           <p className="text-brand-muted text-xs mt-0.5">Tidak ada laporan pada tanggal ini</p>
         </div>
       </div>
@@ -326,7 +326,7 @@ class BerandaPageBase extends React.Component<RouterProps, State> {
           {this.renderDateStrip()}
           <div className="flex-1 px-4 pb-24">
             <div className="mb-3">
-              <h2 className="text-white font-bold text-base">{sectionTitle}</h2>
+              <h2 className="text-brand-text font-bold text-base">{sectionTitle}</h2>
             </div>
             {laporanListContent}
           </div>
@@ -338,7 +338,7 @@ class BerandaPageBase extends React.Component<RouterProps, State> {
           <div className="flex-1 flex flex-col h-screen overflow-y-auto">
             {this.renderHeader()}
             <div className="flex items-center justify-between px-5 mb-3">
-              <h2 className="text-white font-bold text-lg">{sectionTitle}</h2>
+              <h2 className="text-brand-text font-bold text-lg">{sectionTitle}</h2>
               <button onClick={() => this.props.navigate('/laporan')} className="text-brand-accent text-sm font-semibold hover:underline">
                 Lihat Semua ›
               </button>
@@ -351,7 +351,7 @@ class BerandaPageBase extends React.Component<RouterProps, State> {
           {/* Right: sticky map panel */}
           <div className="w-88 flex-shrink-0 border-l border-white/5 sticky top-0 h-screen">
             <div className="px-5 pt-5 pb-1">
-              <p className="text-white font-semibold text-lg">Peta Laporan 
+              <p className="text-brand-text font-semibold text-lg">Peta Laporan
               <span className="text-brand-muted text-[14px] mt-0.5"> - 2 minggu terakhir</span></p>
             </div>
             <div className="mx-4 rounded-2xl overflow-hidden" style={{ height: 400 }}>

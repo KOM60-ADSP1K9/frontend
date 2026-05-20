@@ -217,10 +217,10 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
             value={search}
             onChange={(e) => this.setState({ search: e.target.value })}
             placeholder="Cari nama barang..."
-            className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-brand-surface-alt text-white text-sm placeholder:text-brand-muted border border-brand-muted/20 focus:outline-none focus:border-brand-accent/50 transition-colors"
+            className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-brand-surface-alt text-brand-text text-sm placeholder:text-brand-muted border border-brand-muted/20 focus:outline-none focus:border-brand-accent/50 transition-colors"
           />
           {search && (
-            <button onClick={() => this.setState({ search: '' })} className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-muted hover:text-white">
+            <button onClick={() => this.setState({ search: '' })} className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-muted hover:text-brand-text">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18" />
                 <line x1="6" y1="6" x2="18" y2="18" />
@@ -234,7 +234,7 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
           onClick={this.openFilterSheet}
           className={[
             'relative flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200',
-            count > 0 ? 'bg-brand-accent text-brand-bg' : 'bg-brand-surface-alt text-brand-muted hover:text-white',
+            count > 0 ? 'bg-brand-accent text-brand-bg' : 'bg-brand-surface-alt text-brand-muted hover:text-brand-text',
           ].join(' ')}
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -265,7 +265,7 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
             onClick={() => this.setState({ typeFilter: t.key })}
             className={[
               'px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 flex-shrink-0',
-              typeFilter === t.key ? 'bg-brand-accent text-brand-bg' : 'bg-brand-surface-alt text-brand-muted hover:text-white',
+              typeFilter === t.key ? 'bg-brand-accent text-brand-bg' : 'bg-brand-surface-alt text-brand-muted hover:text-brand-text',
             ].join(' ')}
           >
             {t.label}
@@ -294,8 +294,8 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
 
           {/* Title */}
           <div className="flex items-center justify-between px-6 py-3 flex-shrink-0">
-            <p className="text-white font-bold text-base">Filter</p>
-            <button onClick={this.resetFilters} className="text-brand-muted text-xs hover:text-white transition-colors">
+            <p className="text-brand-text font-bold text-base">Filter</p>
+            <button onClick={this.resetFilters} className="text-brand-muted text-xs hover:text-brand-text transition-colors">
               Reset
             </button>
           </div>
@@ -312,7 +312,7 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
                       this.setPendingFilter('date_from', '');
                       this.setPendingFilter('date_to', '');
                     }}
-                    className="text-xs text-brand-muted hover:text-white transition-colors"
+                    className="text-xs text-brand-muted hover:text-brand-text transition-colors"
                   >
                     Hapus
                   </button>
@@ -326,7 +326,7 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
                     value={pendingFilters.date_from}
                     max={pendingFilters.date_to || undefined}
                     onChange={(e) => this.setPendingFilter('date_from', e.target.value)}
-                    className="w-full px-3 py-2.5 rounded-xl bg-brand-surface-alt text-white text-sm border border-brand-muted/20 focus:outline-none focus:border-brand-accent/50 transition-colors"
+                    className="w-full px-3 py-2.5 rounded-xl bg-brand-surface-alt text-brand-text text-sm border border-brand-muted/20 focus:outline-none focus:border-brand-accent/50 transition-colors"
                   />
                 </div>
                 <span className="text-brand-muted text-sm mt-5">–</span>
@@ -337,7 +337,7 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
                     value={pendingFilters.date_to}
                     min={pendingFilters.date_from || undefined}
                     onChange={(e) => this.setPendingFilter('date_to', e.target.value)}
-                    className="w-full px-3 py-2.5 rounded-xl bg-brand-surface-alt text-white text-sm border border-brand-muted/20 focus:outline-none focus:border-brand-accent/50 transition-colors"
+                    className="w-full px-3 py-2.5 rounded-xl bg-brand-surface-alt text-brand-text text-sm border border-brand-muted/20 focus:outline-none focus:border-brand-accent/50 transition-colors"
                   />
                 </div>
               </div>
@@ -353,7 +353,7 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
                     onClick={() => this.setPendingFilter('kategoriId', pendingFilters.kategoriId === k.id ? '' : k.id)}
                     className={[
                       'px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200',
-                      pendingFilters.kategoriId === k.id ? 'bg-brand-accent text-brand-bg' : 'bg-brand-surface-alt text-brand-muted hover:text-white',
+                      pendingFilters.kategoriId === k.id ? 'bg-brand-accent text-brand-bg' : 'bg-brand-surface-alt text-brand-muted hover:text-brand-text',
                     ].join(' ')}
                   >
                     {k.name}
@@ -368,7 +368,7 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-brand-muted text-xs font-semibold tracking-widest uppercase">Lokasi</p>
                   {pendingFilters.lokasiId && (
-                    <button onClick={() => this.setPendingFilter('lokasiId', '')} className="text-xs text-brand-muted hover:text-white transition-colors">
+                    <button onClick={() => this.setPendingFilter('lokasiId', '')} className="text-xs text-brand-muted hover:text-brand-text transition-colors">
                       Hapus
                     </button>
                   )}
@@ -380,7 +380,7 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
                       onClick={() => this.setPendingFilter('lokasiId', pendingFilters.lokasiId === id ? '' : id)}
                       className={[
                         'px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200',
-                        pendingFilters.lokasiId === id ? 'bg-brand-accent text-brand-bg' : 'bg-brand-surface-alt text-brand-muted hover:text-white',
+                        pendingFilters.lokasiId === id ? 'bg-brand-accent text-brand-bg' : 'bg-brand-surface-alt text-brand-muted hover:text-brand-text',
                       ].join(' ')}
                     >
                       {name}
@@ -400,7 +400,7 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
                     onClick={() => this.setPendingFilter('status', pendingFilters.status === s.value ? '' : s.value)}
                     className={[
                       'px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200',
-                      pendingFilters.status === s.value ? `${LaporanService.statusColor(s.value)} ring-1 ring-current` : 'bg-brand-surface-alt text-brand-muted hover:text-white',
+                      pendingFilters.status === s.value ? `${LaporanService.statusColor(s.value)} ring-1 ring-current` : 'bg-brand-surface-alt text-brand-muted hover:text-brand-text',
                     ].join(' ')}
                   >
                     {s.label}
@@ -431,19 +431,19 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
       <div className="fixed inset-0 z-[9999] bg-black/60 lg:flex lg:items-center lg:justify-center" onClick={() => this.setState({ sheetLaporan: null })}>
         <div className="fixed bottom-0 left-0 right-0 z-[10000] bg-brand-surface rounded-t-3xl p-6 pb-10 lg:pb-6 max-w-lg mx-auto lg:static lg:z-auto lg:max-w-none lg:w-[500px] lg:rounded-2xl" onClick={(e) => e.stopPropagation()}>
           <div className="w-10 h-1 bg-brand-muted/30 rounded-full mx-auto mb-5 lg:hidden" />
-          <p className="text-white font-bold text-base mb-1">{sheetLaporan.barang.name}</p>
+          <p className="text-brand-text font-bold text-base mb-1">{sheetLaporan.barang.name}</p>
           <p className="text-brand-muted text-xs mb-5">Pilih status baru untuk laporan ini</p>
           <div className="flex flex-col gap-3">
             {options.map((opt) => (
               <button
                 key={opt.value}
                 onClick={() => this.handleUpdateStatus(opt.value)}
-                className="w-full py-3.5 rounded-2xl bg-brand-surface-alt text-white text-sm font-semibold hover:brightness-110 active:scale-[0.98] transition-all duration-200"
+                className="w-full py-3.5 rounded-2xl bg-brand-surface-alt text-brand-text text-sm font-semibold hover:brightness-110 active:scale-[0.98] transition-all duration-200"
               >
                 {opt.label}
               </button>
             ))}
-            <button onClick={() => this.setState({ sheetLaporan: null })} className="w-full py-3.5 rounded-2xl text-brand-muted text-sm font-semibold hover:text-white transition-colors">
+            <button onClick={() => this.setState({ sheetLaporan: null })} className="w-full py-3.5 rounded-2xl text-brand-muted text-sm font-semibold hover:text-brand-text transition-colors">
               Batal
             </button>
           </div>
@@ -465,7 +465,7 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
         <div className="w-full max-w-3xl mx-auto flex flex-col flex-1">
           {/* Header */}
           <div className="px-5 pt-5 pb-3 lg:pt-8">
-            <h1 className="text-white font-bold text-lg lg:text-2xl">Semua Laporan</h1>
+            <h1 className="text-brand-text font-bold text-lg lg:text-2xl">Semua Laporan</h1>
             <p className="text-brand-muted text-xs mt-0.5">Feed laporan hilang & temuan</p>
           </div>
 
@@ -485,11 +485,11 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
               <div className="flex flex-col items-center gap-3 py-16 text-center">
                 {hasAnyFilter ? <SearchX size={40} className="text-brand-muted" /> : <Inbox size={40} className="text-brand-muted" />}
                 <div>
-                  <p className="text-white text-sm font-semibold">{hasAnyFilter ? 'Tidak ada hasil' : 'Belum ada laporan'}</p>
+                  <p className="text-brand-text text-sm font-semibold">{hasAnyFilter ? 'Tidak ada hasil' : 'Belum ada laporan'}</p>
                   <p className="text-brand-muted text-xs mt-0.5">{hasAnyFilter ? 'Coba ubah filter atau kata kunci pencarian' : 'Semua laporan akan muncul di sini'}</p>
                 </div>
                 {hasAnyFilter && (
-                  <button onClick={this.resetFilters} className="mt-1 px-4 py-2 rounded-xl bg-brand-surface-alt text-white text-xs font-semibold hover:brightness-110 transition-all">
+                  <button onClick={this.resetFilters} className="mt-1 px-4 py-2 rounded-xl bg-brand-surface-alt text-brand-text text-xs font-semibold hover:brightness-110 transition-all">
                     Reset filter
                   </button>
                 )}

@@ -129,7 +129,7 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
       <div className="fixed inset-0 z-40 bg-black/60 lg:flex lg:items-center lg:justify-center" onClick={() => this.setState({ sheetOpen: false })}>
         <div className="fixed bottom-0 left-0 right-0 z-50 bg-brand-surface rounded-t-3xl p-6 pb-10 max-w-lg mx-auto lg:static lg:z-auto lg:max-w-none lg:w-[500px] lg:rounded-2xl lg:pb-6" onClick={(e) => e.stopPropagation()}>
           <div className="w-10 h-1 bg-brand-muted/30 rounded-full mx-auto mb-5 lg:hidden" />
-          <p className="text-white font-bold text-base mb-1">Update Status</p>
+          <p className="text-brand-text font-bold text-base mb-1">Update Status</p>
           <p className="text-brand-muted text-xs mb-5">Pilih status baru untuk laporan ini</p>
           <div className="flex flex-col gap-3">
             {options.map((opt) => (
@@ -138,13 +138,13 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
                 onClick={() => this.handleUpdateStatus(opt.value)}
                 className={[
                   'w-full py-3.5 rounded-2xl text-sm font-semibold transition-all duration-200 active:scale-[0.98]',
-                  opt.danger ? 'bg-rose-500/10 text-rose-400 hover:bg-rose-500/20' : 'bg-brand-surface-alt text-white hover:brightness-110',
+                  opt.danger ? 'bg-rose-500/10 text-rose-400 hover:bg-rose-500/20' : 'bg-brand-surface-alt text-brand-text hover:brightness-110',
                 ].join(' ')}
               >
                 {opt.label}
               </button>
             ))}
-            <button onClick={() => this.setState({ sheetOpen: false })} className="w-full py-3.5 rounded-2xl text-brand-muted text-sm font-semibold hover:text-white transition-colors">
+            <button onClick={() => this.setState({ sheetOpen: false })} className="w-full py-3.5 rounded-2xl text-brand-muted text-sm font-semibold hover:text-brand-text transition-colors">
               Batal
             </button>
           </div>
@@ -169,7 +169,7 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
         <div className="min-h-screen bg-brand-bg flex flex-col items-center justify-center gap-3 px-6">
           <FileSearch size={40} className="text-brand-muted" />
           <p className="text-brand-muted text-sm text-center">Data laporan tidak ditemukan</p>
-          <button onClick={() => this.props.navigate(-1)} className="mt-2 px-6 py-2.5 rounded-xl bg-brand-surface-alt text-white text-sm font-semibold">
+          <button onClick={() => this.props.navigate(-1)} className="mt-2 px-6 py-2.5 rounded-xl bg-brand-surface-alt text-brand-text text-sm font-semibold">
             Kembali
           </button>
         </div>
@@ -209,27 +209,27 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
       <div className="flex flex-col gap-3">
         <div className="p-4 rounded-2xl bg-brand-surface-alt">
           <p className="text-brand-muted text-xs font-semibold tracking-widest uppercase mb-1.5">Deskripsi</p>
-          <p className="text-white text-sm leading-relaxed">{barang.description}</p>
+          <p className="text-brand-text text-sm leading-relaxed">{barang.description}</p>
         </div>
         <div className="p-4 rounded-2xl bg-brand-surface-alt">
           <p className="text-brand-muted text-xs font-semibold tracking-widest uppercase mb-1.5">Kategori Barang</p>
-          <p className="text-white text-sm">{kategoriName}</p>
+          <p className="text-brand-text text-sm">{kategoriName}</p>
         </div>
         <div className="p-4 rounded-2xl bg-brand-surface-alt flex flex-col gap-3">
           <div>
             <p className="text-brand-muted text-xs font-semibold tracking-widest uppercase mb-1">{isFound ? 'Lokasi Ditemukan' : 'Lokasi Kehilangan'}</p>
-            <p className="text-white text-sm">{locationName}</p>
+            <p className="text-brand-text text-sm">{locationName}</p>
           </div>
           <div className="w-full h-px bg-white/5" />
           <div>
             <p className="text-brand-muted text-xs font-semibold tracking-widest uppercase mb-1">{isFound ? 'Tanggal Ditemukan' : 'Tanggal Hilang'}</p>
-            <p className="text-white text-sm">{LaporanService.formatDate(eventDate)}</p>
+            <p className="text-brand-text text-sm">{LaporanService.formatDate(eventDate)}</p>
           </div>
         </div>
         {user && (
           <div className="p-4 rounded-2xl bg-brand-surface-alt">
             <p className="text-brand-muted text-xs font-semibold tracking-widest uppercase mb-2">Pelapor</p>
-            <p className="text-white text-sm">{user.email}</p>
+            <p className="text-brand-text text-sm">{user.email}</p>
             {user.nim && <p className="text-brand-muted text-xs mt-0.5">{user.nim}</p>}
           </div>
         )}
@@ -251,7 +251,7 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
               <button
                 onClick={() => this.props.navigate(`/laporan/${laporan.id}/edit`, { state: { laporan } })}
                 disabled={isUpdating || isDeleting}
-                className="px-5 py-4 rounded-2xl bg-brand-surface-alt text-white font-semibold text-sm hover:brightness-110 active:scale-[0.98] transition-all duration-200 disabled:opacity-50"
+                className="px-5 py-4 rounded-2xl bg-brand-surface-alt text-brand-text font-semibold text-sm hover:brightness-110 active:scale-[0.98] transition-all duration-200 disabled:opacity-50"
               >
                 Edit
               </button>
@@ -276,12 +276,12 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
 
         {/* Header — shared */}
         <div className="flex items-center gap-3 px-4 pt-5 pb-4 lg:px-8 lg:pt-8 lg:max-w-5xl lg:mx-auto lg:w-full">
-          <button onClick={() => this.props.navigate(-1)} className="w-9 h-9 flex items-center justify-center rounded-xl bg-brand-surface-alt text-brand-muted hover:text-white transition-colors" aria-label="Kembali">
+          <button onClick={() => this.props.navigate(-1)} className="w-9 h-9 flex items-center justify-center rounded-xl bg-brand-surface-alt text-brand-muted hover:text-brand-text transition-colors" aria-label="Kembali">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="15 18 9 12 15 6" />
             </svg>
           </button>
-          <h1 className="text-white font-bold text-base lg:text-xl flex-1 truncate">Detail Laporan</h1>
+          <h1 className="text-brand-text font-bold text-base lg:text-xl flex-1 truncate">Detail Laporan</h1>
         </div>
 
         {/* Mobile layout */}
@@ -289,7 +289,7 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
           <div className="mx-4 h-56">{photoBlock}</div>
           <div className="flex gap-2 px-4 pt-4">{badgesBlock}</div>
           <div className="px-4 pt-3">
-            <h2 className="text-white font-bold text-xl">{barang.name}</h2>
+            <h2 className="text-brand-text font-bold text-xl">{barang.name}</h2>
           </div>
           <div className="px-4 pt-4 pb-32">{infoBlock}</div>
           {ctaBlock && (
@@ -309,7 +309,7 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
           {/* Kanan: detail + CTA */}
           <div className="flex-1 flex flex-col gap-5 min-w-0">
             {badgesBlock}
-            <h2 className="text-white font-bold text-3xl leading-tight">{barang.name}</h2>
+            <h2 className="text-brand-text font-bold text-3xl leading-tight">{barang.name}</h2>
             {infoBlock}
             {ctaBlock && <div className="pt-2">{ctaBlock}</div>}
           </div>
