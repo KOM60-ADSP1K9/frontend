@@ -6,5 +6,6 @@ export interface ActiveFilters {
   date_from: string;
   date_to: string;
   kategoriId: string;
+  lokasiId: string;
   status: LaporanStatus | '';
 }

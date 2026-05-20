@@ -28,9 +28,7 @@ interface State {
   sheetLaporan: HomepageLaporanItem | null;
 }
 
-const EMPTY_FILTERS: ActiveFilters = { date_from: '', date_to: '', kategoriId: '', status: '' };
-
-// ── Status options for filter ──────────────────────────────────────────────
+const EMPTY_FILTERS: ActiveFilters = { date_from: '', date_to: '', kategoriId: '', lokasiId: '', status: '' };
 
 const STATUS_OPTIONS: { value: LaporanStatus; label: string }[] = [
   { value: 'active', label: 'Aktif' },
@@ -106,6 +104,11 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
         return false;
       }
 
+      if (activeFilters.lokasiId) {
+        const loc = l.type === 'hilang' ? l.lost_at_location : l.found_at_location;
+        if (loc?.id !== activeFilters.lokasiId) return false;
+      }
+
       if (activeFilters.status && l.status !== activeFilters.status) return false;
 
       return true;
@@ -115,7 +118,7 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
   private get activeFilterCount(): number {
     const { activeFilters } = this.state;
     const hasDate = !!(activeFilters.date_from || activeFilters.date_to);
-    return [hasDate, !!activeFilters.kategoriId, !!activeFilters.status].filter(Boolean).length;
+    return [hasDate, !!activeFilters.kategoriId, !!activeFilters.lokasiId, !!activeFilters.status].filter(Boolean).length;
   }
 
   // ── Handlers ──────────────────────────────────────────────────────────────
@@ -268,12 +271,17 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
   }
 
   private renderFilterSheet() {
-    const { filterSheetOpen, pendingFilters, kategoriList } = this.state;
+    const { filterSheetOpen, pendingFilters, kategoriList, lokasiMap } = this.state;
     if (!filterSheetOpen) return null;
 
+    const lokasiEntries = Object.entries(lokasiMap).sort((a, b) => a[1].localeCompare(b[1]));
+
     return (
-      <div className="fixed inset-0 z-40 bg-black/60 lg:flex lg:items-center lg:justify-center" onClick={() => this.setState({ filterSheetOpen: false })}>
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-brand-surface rounded-t-3xl max-w-lg mx-auto max-h-[80vh] flex flex-col lg:static lg:z-auto lg:max-w-none lg:w-[600px] lg:rounded-2xl lg:max-h-[85vh]" onClick={(e) => e.stopPropagation()}>
+      <div className="fixed inset-0 z-[9999] bg-black/60 lg:flex lg:items-center lg:justify-center" onClick={() => this.setState({ filterSheetOpen: false })}>
+        <div
+          className="fixed bottom-0 left-0 right-0 z-[10000] bg-brand-surface rounded-t-3xl max-w-lg mx-auto max-h-[80vh] flex flex-col lg:static lg:z-auto lg:max-w-none lg:w-[600px] lg:rounded-2xl lg:max-h-[85vh]"
+          onClick={(e) => e.stopPropagation()}
+        >
           {/* Handle (mobile only) */}
           <div className="pt-4 pb-2 flex-shrink-0 lg:hidden">
             <div className="w-10 h-1 bg-brand-muted/30 rounded-full mx-auto" />
@@ -295,7 +303,10 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
                 <p className="text-brand-muted text-xs font-semibold tracking-widest uppercase">Tanggal Kejadian</p>
                 {(pendingFilters.date_from || pendingFilters.date_to) && (
                   <button
-                    onClick={() => { this.setPendingFilter('date_from', ''); this.setPendingFilter('date_to', ''); }}
+                    onClick={() => {
+                      this.setPendingFilter('date_from', '');
+                      this.setPendingFilter('date_to', '');
+                    }}
                     className="text-xs text-brand-muted hover:text-white transition-colors"
                   >
                     Hapus
@@ -346,6 +357,34 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
               </div>
             </div>
 
+            {/* Filter: Lokasi */}
+            {lokasiEntries.length > 0 && (
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-brand-muted text-xs font-semibold tracking-widest uppercase">Lokasi</p>
+                  {pendingFilters.lokasiId && (
+                    <button onClick={() => this.setPendingFilter('lokasiId', '')} className="text-xs text-brand-muted hover:text-white transition-colors">
+                      Hapus
+                    </button>
+                  )}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {lokasiEntries.map(([id, name]) => (
+                    <button
+                      key={id}
+                      onClick={() => this.setPendingFilter('lokasiId', pendingFilters.lokasiId === id ? '' : id)}
+                      className={[
+                        'px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200',
+                        pendingFilters.lokasiId === id ? 'bg-brand-accent text-brand-bg' : 'bg-brand-surface-alt text-brand-muted hover:text-white',
+                      ].join(' ')}
+                    >
+                      {name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Filter: Status */}
             <div>
               <p className="text-brand-muted text-xs font-semibold tracking-widest uppercase mb-2">Status Laporan</p>
@@ -384,8 +423,8 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
     const options = LaporanService.nextStatusOptions(sheetLaporan.status);
 
     return (
-      <div className="fixed inset-0 z-40 bg-black/60 lg:flex lg:items-center lg:justify-center" onClick={() => this.setState({ sheetLaporan: null })}>
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-brand-surface rounded-t-3xl p-6 pb-10 lg:pb-6 max-w-lg mx-auto lg:static lg:z-auto lg:max-w-none lg:w-[500px] lg:rounded-2xl" onClick={(e) => e.stopPropagation()}>
+      <div className="fixed inset-0 z-[9999] bg-black/60 lg:flex lg:items-center lg:justify-center" onClick={() => this.setState({ sheetLaporan: null })}>
+        <div className="fixed bottom-0 left-0 right-0 z-[10000] bg-brand-surface rounded-t-3xl p-6 pb-10 lg:pb-6 max-w-lg mx-auto lg:static lg:z-auto lg:max-w-none lg:w-[500px] lg:rounded-2xl" onClick={(e) => e.stopPropagation()}>
           <div className="w-10 h-1 bg-brand-muted/30 rounded-full mx-auto mb-5 lg:hidden" />
           <p className="text-white font-bold text-base mb-1">{sheetLaporan.barang.name}</p>
           <p className="text-brand-muted text-xs mb-5">Pilih status baru untuk laporan ini</p>
@@ -411,7 +450,7 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
   render() {
     const { isLoading, lokasiMap, updatingId, search, activeFilters } = this.state;
     const filtered = this.getFiltered();
-    const hasAnyFilter = search.trim() || activeFilters.date_from || activeFilters.date_to || activeFilters.kategoriId || activeFilters.status;
+    const hasAnyFilter = search.trim() || activeFilters.date_from || activeFilters.date_to || activeFilters.kategoriId || activeFilters.lokasiId || activeFilters.status;
 
     return (
       <div className="min-h-screen bg-brand-bg flex flex-col lg:pl-14">
