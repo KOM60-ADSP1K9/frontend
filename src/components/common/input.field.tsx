@@ -39,7 +39,7 @@ export class InputField extends React.Component<Props> {
             onChange={onChange}
             className={[
               'w-full px-4 py-3.5 rounded-xl text-sm outline-none transition-all duration-200',
-              'bg-brand-surface-alt text-white placeholder:text-brand-muted',
+              'bg-brand-surface-alt text-brand-text placeholder:text-brand-muted',
               'border focus:ring-2',
               error
                 ? 'border-rose-500/50 focus:border-rose-500/70 focus:ring-rose-500/10'

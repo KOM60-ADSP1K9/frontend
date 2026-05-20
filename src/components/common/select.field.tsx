@@ -36,7 +36,7 @@ export class SelectField extends React.Component<Props> {
             className={[
               'w-full px-4 py-3.5 rounded-xl text-sm outline-none transition-all duration-200 appearance-none',
               'bg-brand-surface-alt border',
-              value ? 'text-white' : 'text-brand-muted',
+              value ? 'text-brand-text' : 'text-brand-muted',
               'focus:ring-2',
               error
                 ? 'border-rose-500/50 focus:border-rose-500/70 focus:ring-rose-500/10'
@@ -45,7 +45,7 @@ export class SelectField extends React.Component<Props> {
           >
             <option value="" disabled hidden>{placeholder}</option>
             {options.map((opt) => (
-              <option key={opt.value} value={opt.value} className="bg-brand-surface text-white">
+              <option key={opt.value} value={opt.value} className="bg-brand-surface text-brand-text">
                 {opt.label}
               </option>
             ))}

@@ -30,10 +30,10 @@ export class LaporBottomSheet extends React.Component<Props> {
           <div className="w-10 h-1 rounded-full bg-brand-muted/30 mx-auto mb-5 lg:hidden" />
 
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-white font-bold text-lg">Buat laporan</h2>
+            <h2 className="text-brand-text font-bold text-lg">Buat laporan</h2>
             <button
               onClick={onClose}
-              className="w-8 h-8 rounded-full bg-brand-surface-alt flex items-center justify-center text-brand-muted hover:text-white transition-colors"
+              className="w-8 h-8 rounded-full bg-brand-surface-alt flex items-center justify-center text-brand-muted hover:text-brand-text transition-colors"
             >
               <X size={16} />
             </button>
@@ -44,11 +44,11 @@ export class LaporBottomSheet extends React.Component<Props> {
               onClick={onSelectHilang}
               className="flex items-center gap-4 p-4 rounded-2xl bg-brand-surface-alt hover:brightness-110 active:scale-[0.98] transition-all duration-200 text-left"
             >
-              <div className="w-12 h-12 rounded-xl bg-rose-900/70 flex items-center justify-center text-rose-300 flex-shrink-0">
+              <div className="w-12 h-12 rounded-xl bg-rose-500/15 flex items-center justify-center text-rose-400 flex-shrink-0">
                 <Search size={22} />
               </div>
               <div>
-                <p className="text-white font-semibold text-sm">Lapor barang hilang</p>
+                <p className="text-brand-text font-semibold text-sm">Lapor barang hilang</p>
                 <p className="text-brand-muted text-xs mt-0.5">Barang kamu hilang? Laporkan di sini</p>
               </div>
             </button>
@@ -57,11 +57,11 @@ export class LaporBottomSheet extends React.Component<Props> {
               onClick={onSelectTemuan}
               className="flex items-center gap-4 p-4 rounded-2xl bg-brand-surface-alt hover:brightness-110 active:scale-[0.98] transition-all duration-200 text-left"
             >
-              <div className="w-12 h-12 rounded-xl bg-emerald-900/70 flex items-center justify-center text-emerald-300 flex-shrink-0">
+              <div className="w-12 h-12 rounded-xl bg-emerald-500/15 flex items-center justify-center text-emerald-400 flex-shrink-0">
                 <Archive size={22} />
               </div>
               <div>
-                <p className="text-white font-semibold text-sm">Lapor barang temuan</p>
+                <p className="text-brand-text font-semibold text-sm">Lapor barang temuan</p>
                 <p className="text-brand-muted text-xs mt-0.5">Menemukan barang? Bantu kembalikan</p>
               </div>
             </button>

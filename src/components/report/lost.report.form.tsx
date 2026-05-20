@@ -244,7 +244,6 @@ class LostReportFormBase extends React.Component<RouterProps, State> {
 
         {isMobile ? (
           <div className="flex gap-3">
-            {/* Camera: capture langsung dari kamera HP */}
             <button
               type="button"
               onClick={() => this.cameraInputRef.current?.click()}
@@ -254,7 +253,6 @@ class LostReportFormBase extends React.Component<RouterProps, State> {
               <span className="text-xs font-medium">Ambil Foto</span>
             </button>
 
-            {/* Gallery: pilih dari file/galeri */}
             <button
               type="button"
               onClick={() => this.galleryInputRef.current?.click()}
@@ -321,7 +319,7 @@ class LostReportFormBase extends React.Component<RouterProps, State> {
               onChange={this.handleTextChange}
               className={[
                 'w-full px-4 py-3.5 rounded-xl text-sm outline-none transition-all duration-200 resize-none',
-                'bg-brand-surface-alt text-white placeholder:text-brand-muted',
+                'bg-brand-surface-alt text-brand-text placeholder:text-brand-muted',
                 'border focus:ring-2',
                 errors.barang_description ? 'border-rose-500/50 focus:border-rose-500/70 focus:ring-rose-500/10' : 'border-brand-muted/20 focus:border-brand-accent/50 focus:ring-brand-accent/10',
               ].join(' ')}

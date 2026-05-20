@@ -12,13 +12,9 @@ import { Toast } from '../../utils/toast';
 import { Alert } from '../../utils/alert';
 import type { Lokasi, KategoriBarang } from '../../types/report.types';
 
-// ── Helpers ────────────────────────────────────────────────────────────────
-
 function isMobileDevice(): boolean {
   return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 }
-
-// ── Icons ──────────────────────────────────────────────────────────────────
 
 class CameraIcon extends React.Component {
   render() {
@@ -43,8 +39,6 @@ class ImageIcon extends React.Component {
   }
 }
 
-// ── State ──────────────────────────────────────────────────────────────────
-
 interface State {
   barang_name: string;
   barang_description: string;
@@ -68,8 +62,6 @@ interface State {
     found_at_date?: string;
   };
 }
-
-// ── Component ──────────────────────────────────────────────────────────────
 
 class FoundReportFormBase extends React.Component<RouterProps, State> {
   private cameraInputRef = React.createRef<HTMLInputElement>();
@@ -323,7 +315,7 @@ class FoundReportFormBase extends React.Component<RouterProps, State> {
               onChange={this.handleTextChange}
               className={[
                 'w-full px-4 py-3.5 rounded-xl text-sm outline-none transition-all duration-200 resize-none',
-                'bg-brand-surface-alt text-white placeholder:text-brand-muted',
+                'bg-brand-surface-alt text-brand-text placeholder:text-brand-muted',
                 'border focus:ring-2',
                 errors.barang_description ? 'border-rose-500/50 focus:border-rose-500/70 focus:ring-rose-500/10' : 'border-brand-muted/20 focus:border-brand-accent/50 focus:ring-brand-accent/10',
               ].join(' ')}

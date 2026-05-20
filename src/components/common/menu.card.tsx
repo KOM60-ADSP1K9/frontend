@@ -20,7 +20,7 @@ export class MenuCard extends React.Component<Props> {
           {icon}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-white">{title}</p>
+          <p className="text-sm font-semibold text-brand-text">{title}</p>
           {subtitle && <p className="text-xs text-brand-muted mt-0.5">{subtitle}</p>}
         </div>
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-brand-muted flex-shrink-0">

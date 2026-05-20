@@ -16,6 +16,6 @@ export class LoadingSpinner extends React.Component<Props> {
 
   render() {
     const { size = 'md', className = '' } = this.props;
-    return <span role="status" aria-label="Memuat..." className={`inline-block rounded-full border-brand-light border-t-brand-primary animate-spin ${this.sizeMap[size]} ${className}`} />;
+    return <span role="status" aria-label="Memuat..." className={`inline-block rounded-full border-brand-surface-alt border-t-brand-accent animate-spin ${this.sizeMap[size]} ${className}`} />;
   }
 }

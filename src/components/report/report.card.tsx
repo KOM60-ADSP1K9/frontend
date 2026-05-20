@@ -56,7 +56,7 @@ export class LaporanCard extends React.Component<Props> {
           </div>
 
           {/* Nama barang */}
-          <p className="font-semibold text-white text-sm truncate mt-1">{barang.name}</p>
+          <p className="font-semibold text-brand-text text-sm truncate mt-1">{barang.name}</p>
 
           {/* Lokasi + Kategori */}
           <div className="flex items-center gap-2 mt-0.5 flex-wrap">
