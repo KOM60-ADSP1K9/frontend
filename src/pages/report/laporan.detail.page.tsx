@@ -4,6 +4,7 @@ import type { RouterProps } from '../../router/with.router';
 import { LoadingSpinner } from '../../components/common/loading.spinner';
 import { LaporanApi } from '../../api/laporan.api';
 import { LokasiApi } from '../../api/lokasi.api';
+import { KategoriApi } from '../../api/kategori.api';
 import { Alert } from '../../utils/alert';
 import { Toast } from '../../utils/toast';
 import { ImageOff, FileSearch } from 'lucide-react';
@@ -15,6 +16,7 @@ import type { HomepageLaporanItem, UpdateStatusValue } from '../../types/report.
 interface State {
   laporan: HomepageLaporanItem | null;
   lokasiMap: Record<string, string>;
+  kategoriMap: Record<string, string>;
   isLoading: boolean;
   isUpdating: boolean;
   isDeleting: boolean;
@@ -28,6 +30,7 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
   state: State = {
     laporan: null,
     lokasiMap: {},
+    kategoriMap: {},
     isLoading: true,
     isUpdating: false,
     isDeleting: false,
@@ -38,18 +41,22 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
   async componentDidMount() {
     const passed = (this.props.location.state as { laporan?: HomepageLaporanItem } | null)?.laporan;
 
-    const lokasiRes = await LokasiApi.getAll();
+    const [lokasiRes, kategoriRes] = await Promise.all([LokasiApi.getAll(), KategoriApi.getAll()]);
+
     const lokasiMap: Record<string, string> = {};
     if (lokasiRes.status === 'success') {
-      lokasiRes.data.forEach((l) => {
-        lokasiMap[l.id] = l.name;
-      });
+      lokasiRes.data.forEach((l) => { lokasiMap[l.id] = l.name; });
+    }
+
+    const kategoriMap: Record<string, string> = {};
+    if (kategoriRes.status === 'success') {
+      kategoriRes.data.forEach((k) => { kategoriMap[k.id] = k.name; });
     }
 
     if (passed) {
-      this.setState({ laporan: passed, lokasiMap, isLoading: false });
+      this.setState({ laporan: passed, lokasiMap, kategoriMap, isLoading: false });
     } else {
-      this.setState({ lokasiMap, isLoading: false });
+      this.setState({ lokasiMap, kategoriMap, isLoading: false });
       Alert.error('Data tidak ditemukan', 'Buka dari daftar laporan.');
     }
   }
@@ -147,7 +154,7 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
   }
 
   render() {
-    const { laporan, lokasiMap, isLoading, isUpdating, isDeleting, imgError } = this.state;
+    const { laporan, lokasiMap, kategoriMap, isLoading, isUpdating, isDeleting, imgError } = this.state;
 
     if (isLoading) {
       return (
@@ -170,6 +177,7 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
     }
 
     const { barang, type, status, user, is_owned } = laporan;
+    const kategoriName = barang.kategori_barang_id ? (kategoriMap[barang.kategori_barang_id] ?? '—') : '—';
     const isFound = type === 'temuan';
     const locationEmbedded = isFound ? laporan.found_at_location : laporan.lost_at_location;
     const locationName = locationEmbedded?.name ?? ((locationEmbedded?.id && lokasiMap[locationEmbedded.id]) || '—');
@@ -202,6 +210,10 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
         <div className="p-4 rounded-2xl bg-brand-surface-alt">
           <p className="text-brand-muted text-xs font-semibold tracking-widest uppercase mb-1.5">Deskripsi</p>
           <p className="text-white text-sm leading-relaxed">{barang.description}</p>
+        </div>
+        <div className="p-4 rounded-2xl bg-brand-surface-alt">
+          <p className="text-brand-muted text-xs font-semibold tracking-widest uppercase mb-1.5">Kategori Barang</p>
+          <p className="text-white text-sm">{kategoriName}</p>
         </div>
         <div className="p-4 rounded-2xl bg-brand-surface-alt flex flex-col gap-3">
           <div>
