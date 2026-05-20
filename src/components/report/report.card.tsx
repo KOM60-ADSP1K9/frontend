@@ -5,6 +5,7 @@ import { LaporanService } from '../../services/laporan.service';
 interface Props {
   laporan: HomepageLaporanItem;
   lokasiMap?: Record<string, string>;
+  kategoriMap?: Record<string, string>;
   showStatus?: boolean;
   onClick?: (laporan: HomepageLaporanItem) => void;
 }
@@ -15,8 +16,9 @@ export class LaporanCard extends React.Component<Props> {
   };
 
   render() {
-    const { laporan, lokasiMap, showStatus = false } = this.props;
+    const { laporan, lokasiMap, kategoriMap, showStatus = false } = this.props;
     const { barang, type, status, created_at } = laporan;
+    const kategoriName = barang.kategori_barang_id && kategoriMap ? (kategoriMap[barang.kategori_barang_id] ?? null) : null;
 
     const embeddedLokasi = type === 'hilang' ? laporan.lost_at_location : laporan.found_at_location;
     const locationName = embeddedLokasi?.name ?? (embeddedLokasi?.id && lokasiMap ? (lokasiMap[embeddedLokasi.id] ?? '—') : '—');
@@ -56,13 +58,24 @@ export class LaporanCard extends React.Component<Props> {
           {/* Nama barang */}
           <p className="font-semibold text-white text-sm truncate mt-1">{barang.name}</p>
 
-          {/* Lokasi */}
-          <div className="flex items-center gap-1 text-brand-muted mt-0.5">
-            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-              <circle cx="12" cy="10" r="3" />
-            </svg>
-            <span className="text-xs truncate">{locationName}</span>
+          {/* Lokasi + Kategori */}
+          <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+            <div className="flex items-center gap-1 text-brand-muted min-w-0">
+              <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              <span className="text-xs truncate">{locationName}</span>
+            </div>
+            {kategoriName && (
+              <div className="flex items-center gap-1 text-brand-muted min-w-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
+                  <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+                  <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                </svg>
+                <span className="text-xs truncate">{kategoriName}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
