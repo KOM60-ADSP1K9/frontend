@@ -8,6 +8,18 @@ export class AuthApi {
     return res.data;
   }
 
+  static async getFakultas(): Promise<ApiResponse<string[]>> {
+    const res = await apiClient.get<ApiResponse<string[]>>('/auth/fakultas');
+    return res.data;
+  }
+
+  static async getDepartemen(fakultas: string): Promise<ApiResponse<string[]>> {
+    const res = await apiClient.get<ApiResponse<string[]>>('/auth/fakultas/departemen', {
+      params: { fakultas },
+    });
+    return res.data;
+  }
+
   static async login(data: LoginRequest): Promise<ApiResponse<LoginResponseData>> {
     const res = await apiClient.post<ApiResponse<LoginResponseData>>('/auth/login', data);
     return res.data;

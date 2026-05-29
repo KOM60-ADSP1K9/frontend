@@ -9,60 +9,6 @@ import { AuthApi } from '../../api/auth.api';
 import { Toast } from '../../utils/toast';
 import { Alert } from '../../utils/alert';
 
-// ── Static data ───────────────────────────────────────────────────────────────
-
-const FAKULTAS_OPTIONS = [
-  { value: 'FAPERTA', label: 'FAPERTA — Pertanian' },
-  { value: 'FKH', label: 'FKH — Kedokteran Hewan' },
-  { value: 'FPIK', label: 'FPIK — Perikanan & Kelautan' },
-  { value: 'FAPET', label: 'FAPET — Peternakan' },
-  { value: 'FAHUTAN', label: 'FAHUTAN — Kehutanan' },
-  { value: 'FATETA', label: 'FATETA — Teknologi Pertanian' },
-  { value: 'FMIPA', label: 'FMIPA — Matematika & IPA' },
-  { value: 'FEM', label: 'FEM — Ekonomi & Manajemen' },
-  { value: 'FEMA', label: 'FEMA — Ekologi Manusia' },
-  { value: 'SV', label: 'SV — Sekolah Vokasi' },
-  { value: 'SSMI', label: 'SSMI — Sekolah Sains Data, Matematika, dan Informatika' },
-];
-
-const DEPARTEMEN_OPTIONS: Record<string, { value: string; label: string }[]> = {
-  FMIPA: [
-    { value: 'Fisika', label: 'Fisika' },
-    { value: 'Kimia', label: 'Kimia' },
-    { value: 'Biologi', label: 'Biologi' },
-    { value: 'Biokimia', label: 'Biokimia' },
-  ],
-  FATETA: [
-    { value: 'Teknik Mesin & Biosistem', label: 'Teknik Mesin & Biosistem' },
-    { value: 'Teknik Sipil & Lingkungan', label: 'Teknik Sipil & Lingkungan' },
-    { value: 'Teknologi Industri Pertanian', label: 'Teknologi Industri Pertanian' },
-    { value: 'Ilmu & Teknologi Pangan', label: 'Ilmu & Teknologi Pangan' },
-  ],
-  FAPERTA: [
-    { value: 'Agronomi & Hortikultura', label: 'Agronomi & Hortikultura' },
-    { value: 'Ilmu Tanah', label: 'Ilmu Tanah' },
-    { value: 'Proteksi Tanaman', label: 'Proteksi Tanaman' },
-    { value: 'Arsitektur Lanskap', label: 'Arsitektur Lanskap' },
-  ],
-  FEM: [
-    { value: 'Manajemen', label: 'Manajemen' },
-    { value: 'Ekonomi Sumberdaya & Lingkungan', label: 'Ekonomi Sumberdaya & Lingkungan' },
-    { value: 'Agribisnis', label: 'Agribisnis' },
-    { value: 'Ekonomi Pembangunan', label: 'Ekonomi Pembangunan' },
-  ],
-  SSMI: [
-    { value: 'Ilmu Komputer', label: 'Ilmu Komputer' },
-    { value: 'Matematika', label: 'Matematika' },
-    { value: 'Statistika', label: 'Statistika' },
-    { value: 'Aktuaria', label: 'Aktuaria' },
-  ],
-};
-
-// Fallback untuk fakultas yang belum punya mapping
-const getAllDepartemen = () => [{ value: 'Lainnya', label: 'Lainnya' }];
-
-// ── State ─────────────────────────────────────────────────────────────────────
-
 interface FormFields {
   email: string;
   password: string;
@@ -77,9 +23,11 @@ interface State extends FormFields {
   showPassword: boolean;
   showConfirm: boolean;
   errors: Partial<FormFields>;
+  fakultasOptions: { value: string; label: string }[];
+  departemenOptions: { value: string; label: string }[];
+  loadingFakultas: boolean;
+  loadingDepartemen: boolean;
 }
-
-// ── Component ─────────────────────────────────────────────────────────────────
 
 class RegisterFormBase extends React.Component<RouterProps, State> {
   state: State = {
@@ -93,7 +41,26 @@ class RegisterFormBase extends React.Component<RouterProps, State> {
     showPassword: false,
     showConfirm: false,
     errors: {},
+    fakultasOptions: [],
+    departemenOptions: [],
+    loadingFakultas: true,
+    loadingDepartemen: false,
   };
+
+  async componentDidMount() {
+    try {
+      const res = await AuthApi.getFakultas();
+      if (res.status === 'success') {
+        this.setState({
+          fakultasOptions: res.data.map((f) => ({ value: f, label: f })),
+        });
+      }
+    } catch {
+      // silently fail — user can't pick fakultas but form still renders
+    } finally {
+      this.setState({ loadingFakultas: false });
+    }
+  }
 
   private handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -104,11 +71,37 @@ class RegisterFormBase extends React.Component<RouterProps, State> {
     }));
   };
 
-  private handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  private handleSelect = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target;
-    const next: Partial<State> = { [name]: value, errors: { ...this.state.errors, [name]: undefined } };
-    if (name === 'fakultas') next.departemen = '';
-    this.setState((prev) => ({ ...prev, ...next }));
+
+    if (name === 'fakultas') {
+      this.setState({
+        fakultas: value,
+        departemen: '',
+        departemenOptions: [],
+        errors: { ...this.state.errors, fakultas: undefined, departemen: undefined },
+        loadingDepartemen: true,
+      });
+
+      try {
+        const res = await AuthApi.getDepartemen(value);
+        if (res.status === 'success') {
+          this.setState({
+            departemenOptions: res.data.map((d) => ({ value: d, label: d })),
+          });
+        }
+      } catch {
+        // silently fail
+      } finally {
+        this.setState({ loadingDepartemen: false });
+      }
+    } else {
+      this.setState((prev) => ({
+        ...prev,
+        [name]: value,
+        errors: { ...prev.errors, [name]: undefined },
+      }));
+    }
   };
 
   private togglePassword = () => this.setState((p) => ({ showPassword: !p.showPassword }));
@@ -177,9 +170,11 @@ class RegisterFormBase extends React.Component<RouterProps, State> {
   }
 
   render() {
-    const { email, password, confirmPassword, nim, fakultas, departemen, isLoading, showPassword, showConfirm, errors } = this.state;
-
-    const departemenOptions = fakultas ? (DEPARTEMEN_OPTIONS[fakultas] ?? getAllDepartemen()) : [];
+    const {
+      email, password, confirmPassword, nim, fakultas, departemen,
+      isLoading, showPassword, showConfirm, errors,
+      fakultasOptions, departemenOptions, loadingFakultas, loadingDepartemen,
+    } = this.state;
 
     return (
       <form onSubmit={this.handleSubmit} noValidate className="flex flex-col gap-4">
@@ -213,10 +208,27 @@ class RegisterFormBase extends React.Component<RouterProps, State> {
 
         <InputField label="NIM" name="nim" value={nim} placeholder="G641XXXXX" error={errors.nim} required onChange={this.handleChange} />
 
-        {/* Fakultas & Departemen side by side */}
         <div className="grid grid-cols-2 gap-3">
-          <SelectField label="Fakultas" name="fakultas" value={fakultas} options={FAKULTAS_OPTIONS} error={errors.fakultas} required onChange={this.handleSelect} />
-          <SelectField label="Departemen" name="departemen" value={departemen} options={departemenOptions} placeholder={fakultas ? 'Pilih...' : 'Pilih fakultas dulu'} error={errors.departemen} required onChange={this.handleSelect} />
+          <SelectField
+            label="Fakultas"
+            name="fakultas"
+            value={fakultas}
+            options={fakultasOptions}
+            placeholder={loadingFakultas ? 'Memuat...' : 'Pilih...'}
+            error={errors.fakultas}
+            required
+            onChange={this.handleSelect}
+          />
+          <SelectField
+            label="Departemen"
+            name="departemen"
+            value={departemen}
+            options={departemenOptions}
+            placeholder={loadingDepartemen ? 'Memuat...' : fakultas ? 'Pilih...' : 'Pilih fakultas dulu'}
+            error={errors.departemen}
+            required
+            onChange={this.handleSelect}
+          />
         </div>
 
         <button
