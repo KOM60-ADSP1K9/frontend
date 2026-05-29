@@ -31,6 +31,7 @@ export interface BarangResponse {
   description: string;
   photo: string;
   kategori_barang_id: string | null;
+  kategori_barang: { id: string; name: string } | null;
   created_at: string | null;
   updated_at: string | null;
 }
@@ -114,6 +115,46 @@ export interface HomepageLaporanItem {
   barang: BarangResponse;
   user: HomepageUserInfo | null;
   is_owned: boolean;
+}
+
+// ── Laporan Detail (GET /reports/{id}) ──────────────────────────────────────
+
+export type InquiryType = 'claim' | 'found';
+export type InquiryStatus = 'pending' | 'accepted' | 'rejected';
+
+export interface InquiryResponse {
+  id: string;
+  type: InquiryType;
+  status: InquiryStatus;
+  laporan_id: string;
+  sender_user_id: string;
+  sender: HomepageUserInfo | null;
+  message_content: string;
+  send_date: string;
+  claimer_contact: string | null;
+  proof_of_ownership: string | null;
+  ktm: string | null;
+  finder_contact: string | null;
+  photo: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+  is_owned: boolean;
+}
+
+export interface LaporanDetailResponse {
+  id: string;
+  type: LaporanType;
+  status: LaporanStatus;
+  lost_at_location_id: string | null;
+  lost_at_date: string | null;
+  found_at_location_id: string | null;
+  found_at_date: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+  barang: BarangResponse;
+  user: HomepageUserInfo | null;
+  is_owned: boolean;
+  inquiries: InquiryResponse[];
 }
 
 // ── Query params ────────────────────────────────────────────────────────────

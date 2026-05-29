@@ -18,7 +18,7 @@ export class LaporanCard extends React.Component<Props> {
   render() {
     const { laporan, lokasiMap, kategoriMap, showStatus = false } = this.props;
     const { barang, type, status, created_at } = laporan;
-    const kategoriName = barang.kategori_barang_id && kategoriMap ? (kategoriMap[barang.kategori_barang_id] ?? null) : null;
+    const kategoriName = barang.kategori_barang?.name ?? (barang.kategori_barang_id && kategoriMap ? (kategoriMap[barang.kategori_barang_id] ?? null) : null);
 
     const embeddedLokasi = type === 'hilang' ? laporan.lost_at_location : laporan.found_at_location;
     const locationName = embeddedLokasi?.name ?? (embeddedLokasi?.id && lokasiMap ? (lokasiMap[embeddedLokasi.id] ?? '—') : '—');
