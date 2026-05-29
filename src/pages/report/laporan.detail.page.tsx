@@ -9,12 +9,12 @@ import { Alert } from '../../utils/alert';
 import { Toast } from '../../utils/toast';
 import { ImageOff, FileSearch } from 'lucide-react';
 import { LaporanService } from '../../services/laporan.service';
-import type { HomepageLaporanItem, UpdateStatusValue } from '../../types/report.types';
+import type { HomepageLaporanItem, LaporanDetailResponse, UpdateStatusValue } from '../../types/report.types';
 
 // ── State ──────────────────────────────────────────────────────────────────
 
 interface State {
-  laporan: HomepageLaporanItem | null;
+  laporan: LaporanDetailResponse | null;
   lokasiMap: Record<string, string>;
   kategoriMap: Record<string, string>;
   isLoading: boolean;
@@ -40,6 +40,7 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
 
   async componentDidMount() {
     const passed = (this.props.location.state as { laporan?: HomepageLaporanItem } | null)?.laporan;
+    const laporanId = this.props.params.id as string;
 
     const [lokasiRes, kategoriRes] = await Promise.all([LokasiApi.getAll(), KategoriApi.getAll()]);
 
@@ -54,10 +55,28 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
     }
 
     if (passed) {
-      this.setState({ laporan: passed, lokasiMap, kategoriMap, isLoading: false });
+      // Fast path: convert HomepageLaporanItem → LaporanDetailResponse
+      const laporan: LaporanDetailResponse = {
+        ...passed,
+        lost_at_location_id: passed.lost_at_location?.id ?? null,
+        found_at_location_id: passed.found_at_location?.id ?? null,
+        inquiries: [],
+      };
+      this.setState({ laporan, lokasiMap, kategoriMap, isLoading: false });
     } else {
-      this.setState({ lokasiMap, kategoriMap, isLoading: false });
-      Alert.error('Data tidak ditemukan', 'Buka dari daftar laporan.');
+      // Slow path: fetch from BE (direct URL / page refresh)
+      try {
+        const res = await LaporanApi.getLaporanDetail(laporanId);
+        if (res.status === 'success') {
+          this.setState({ laporan: res.data, lokasiMap, kategoriMap, isLoading: false });
+        } else {
+          this.setState({ lokasiMap, kategoriMap, isLoading: false });
+          Alert.error('Gagal memuat laporan', res.error);
+        }
+      } catch {
+        this.setState({ lokasiMap, kategoriMap, isLoading: false });
+        Alert.error('Gagal memuat laporan', 'Terjadi kesalahan. Coba lagi.');
+      }
     }
   }
 
@@ -177,10 +196,10 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
     }
 
     const { barang, type, status, user, is_owned } = laporan;
-    const kategoriName = barang.kategori_barang_id ? (kategoriMap[barang.kategori_barang_id] ?? '—') : '—';
+    const kategoriName = barang.kategori_barang?.name ?? (barang.kategori_barang_id ? (kategoriMap[barang.kategori_barang_id] ?? '—') : '—');
     const isFound = type === 'temuan';
-    const locationEmbedded = isFound ? laporan.found_at_location : laporan.lost_at_location;
-    const locationName = locationEmbedded?.name ?? ((locationEmbedded?.id && lokasiMap[locationEmbedded.id]) || '—');
+    const locationId = isFound ? laporan.found_at_location_id : laporan.lost_at_location_id;
+    const locationName = locationId ? (lokasiMap[locationId] ?? '—') : '—';
     const eventDate = isFound ? laporan.found_at_date : laporan.lost_at_date;
     const canUpdateStatus = is_owned && LaporanService.canUpdate(status);
     const canEditLaporan = is_owned && LaporanService.canEdit(status);

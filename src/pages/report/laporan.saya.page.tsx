@@ -29,7 +29,7 @@ interface State {
   sheetLaporan: HomepageLaporanItem | null;
 }
 
-const EMPTY_FILTERS: ActiveFilters = { date_from: '', date_to: '', kategoriId: '', status: '' };
+const EMPTY_FILTERS: ActiveFilters = { date_from: '', date_to: '', kategoriId: '', lokasiId: '', status: '' };
 
 const STATUS_OPTIONS: { value: LaporanStatus; label: string }[] = [
   { value: 'active', label: 'Aktif' },

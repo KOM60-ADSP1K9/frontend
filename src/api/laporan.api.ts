@@ -1,6 +1,6 @@
 import apiClient from './client';
 import type { ApiResponse } from '../types/api.types';
-import type { LaporanResponse, LostReportPayload, FoundReportPayload, UpdateStatusValue, UpdateBarangPayload, UpdateDetailsPayload, HomepageLaporanItem, LaporanQueryParams } from '../types/report.types';
+import type { LaporanResponse, LostReportPayload, FoundReportPayload, UpdateStatusValue, UpdateBarangPayload, UpdateDetailsPayload, HomepageLaporanItem, LaporanQueryParams, LaporanDetailResponse } from '../types/report.types';
 
 export class LaporanApi {
     static async getAllLaporan(params?: LaporanQueryParams): Promise<ApiResponse<HomepageLaporanItem[]>> {
@@ -62,6 +62,11 @@ export class LaporanApi {
     const res = await apiClient.post<ApiResponse<LaporanResponse>>('/found-reports', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
+    return res.data;
+  }
+
+  static async getLaporanDetail(laporanId: string): Promise<ApiResponse<LaporanDetailResponse>> {
+    const res = await apiClient.get<ApiResponse<LaporanDetailResponse>>(`/reports/${laporanId}`);
     return res.data;
   }
 
