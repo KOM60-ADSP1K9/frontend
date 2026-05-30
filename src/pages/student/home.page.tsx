@@ -9,6 +9,7 @@ import { LoadingSpinner } from '../../components/common/loading.spinner';
 import { LaporanApi } from '../../api/laporan.api';
 import { AuthApi } from '../../api/auth.api';
 import { Toast } from '../../utils/toast';
+import { NotificationBell } from '../../components/common/notification.bell';
 import type { HomepageLaporanItem } from '../../types/report.types';
 import type { User } from '../../types/auth.types';
 import type { LaporanFilterType } from '../../types/ui.types';
@@ -52,16 +53,6 @@ interface State {
   selectedLocationLaporan: HomepageLaporanItem[] | null;
 }
 
-class BellIcon extends React.Component {
-  render() {
-    return (
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-        <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-      </svg>
-    );
-  }
-}
 
 const DATE_STRIP = buildDateStrip();
 const TODAY_STR = toLocalDateStr(new Date());
@@ -170,9 +161,7 @@ class BerandaPageBase extends React.Component<RouterProps, State> {
             <p className="text-brand-muted text-xs mt-0.5">{user ? this.getSubtitle(user) : ''}</p>
           </div>
         </div>
-        <button className="text-brand-muted hover:text-brand-text transition-colors relative">
-          <BellIcon />
-        </button>
+        <NotificationBell navigate={this.props.navigate} />
       </div>
     );
   }
