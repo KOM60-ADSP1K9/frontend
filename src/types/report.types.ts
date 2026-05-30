@@ -43,6 +43,8 @@ export type LaporanStatus =
   | 'draft'
   | 'active'
   | 'claim pending'
+  | 'found claim pending'
+  | 'in progress'
   | 'resolved'
   | 'closed'
   | 'self-resolved';
@@ -120,7 +122,7 @@ export interface HomepageLaporanItem {
 // ── Laporan Detail (GET /reports/{id}) ──────────────────────────────────────
 
 export type InquiryType = 'claim' | 'found';
-export type InquiryStatus = 'pending' | 'accepted' | 'rejected';
+export type InquiryStatus = 'proposed' | 'active' | 'rejected';
 
 export interface InquiryResponse {
   id: string;
@@ -155,6 +157,21 @@ export interface LaporanDetailResponse {
   user: HomepageUserInfo | null;
   is_owned: boolean;
   inquiries: InquiryResponse[];
+}
+
+export interface ClaimInquiryPayload {
+  laporan_id: string;
+  message_content: string;
+  claimer_contact: string;
+  proof_of_ownership: File;
+  ktm: File;
+}
+
+export interface FoundInquiryPayload {
+  laporan_id: string;
+  message_content: string;
+  finder_contact: string;
+  photo: File;
 }
 
 // ── Query params ────────────────────────────────────────────────────────────
