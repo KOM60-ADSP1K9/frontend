@@ -9,7 +9,11 @@ import { Alert } from '../../utils/alert';
 import { Toast } from '../../utils/toast';
 import { ImageOff, FileSearch } from 'lucide-react';
 import { LaporanService } from '../../services/laporan.service';
-import type { HomepageLaporanItem, LaporanDetailResponse, UpdateStatusValue } from '../../types/report.types';
+import { InquiryCard } from '../../components/report/inquiry.card';
+import { ClaimInquiryForm } from '../../components/report/claim.inquiry.form';
+import { FoundInquiryForm } from '../../components/report/found.inquiry.form';
+import { InquiryApi } from '../../api/inquiry.api';
+import type { HomepageLaporanItem, LaporanDetailResponse, UpdateStatusValue, InquiryStatus } from '../../types/report.types';
 
 // ── State ──────────────────────────────────────────────────────────────────
 
@@ -21,6 +25,7 @@ interface State {
   isUpdating: boolean;
   isDeleting: boolean;
   sheetOpen: boolean;
+  inquirySheet: 'claim' | 'found' | null;
   imgError: boolean;
 }
 
@@ -35,6 +40,7 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
     isUpdating: false,
     isDeleting: false,
     sheetOpen: false,
+    inquirySheet: null,
     imgError: false,
   };
 
@@ -63,6 +69,14 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
         inquiries: [],
       };
       this.setState({ laporan, lokasiMap, kategoriMap, isLoading: false });
+      // Background fetch to hydrate inquiries
+      LaporanApi.getLaporanDetail(laporanId).then((res) => {
+        if (res.status === 'success') {
+          this.setState((prev) =>
+            prev.laporan ? { laporan: { ...prev.laporan, inquiries: res.data.inquiries } } : null,
+          );
+        }
+      }).catch(() => {});
     } else {
       // Slow path: fetch from BE (direct URL / page refresh)
       try {
@@ -137,6 +151,79 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
       this.setState({ isDeleting: false });
     }
   };
+
+  private refreshInquiries = async () => {
+    const { laporan } = this.state;
+    if (!laporan) return;
+    this.setState({ inquirySheet: null });
+    try {
+      const res = await LaporanApi.getLaporanDetail(laporan.id);
+      if (res.status === 'success') {
+        this.setState((prev) =>
+          prev.laporan ? { laporan: { ...prev.laporan, inquiries: res.data.inquiries } } : null,
+        );
+      }
+    } catch { /* silently fail */ }
+  };
+
+  private handleInquiryStatusUpdate = async (inquiryId: string, status: InquiryStatus) => {
+    try {
+      const res = await InquiryApi.updateInquiryStatus(inquiryId, status);
+      if (res.status === 'success') {
+        this.setState((prev) => {
+          if (!prev.laporan) return null;
+          return {
+            laporan: {
+              ...prev.laporan,
+              inquiries: prev.laporan.inquiries.map((inq) =>
+                inq.id === inquiryId ? { ...inq, status: res.data.status } : inq,
+              ),
+            },
+          };
+        });
+      } else {
+        Alert.error('Gagal', res.error);
+      }
+    } catch {
+      Alert.error('Gagal', 'Terjadi kesalahan. Coba lagi.');
+    }
+  };
+
+  private renderInquirySheet() {
+    const { laporan, inquirySheet } = this.state;
+    if (!laporan || !inquirySheet) return null;
+
+    const title = inquirySheet === 'claim' ? 'Ajukan Klaim' : 'Laporkan Temuan';
+    const subtitle = inquirySheet === 'claim'
+      ? 'Isi form berikut untuk mengajukan klaim kepemilikan'
+      : 'Isi form berikut untuk melaporkan bahwa Anda menemukan barang ini';
+
+    return (
+      <div className="fixed inset-0 z-40 bg-black/60 lg:flex lg:items-center lg:justify-center" onClick={() => this.setState({ inquirySheet: null })}>
+        <div
+          className="fixed bottom-0 left-0 right-0 z-50 bg-brand-surface rounded-t-3xl p-6 pb-10 max-w-lg mx-auto overflow-y-auto max-h-[90vh] lg:static lg:z-auto lg:max-w-none lg:w-[520px] lg:rounded-2xl lg:pb-6"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="w-10 h-1 bg-brand-muted/30 rounded-full mx-auto mb-5 lg:hidden" />
+          <p className="text-brand-text font-bold text-base mb-1">{title}</p>
+          <p className="text-brand-muted text-xs mb-5">{subtitle}</p>
+          {inquirySheet === 'claim' ? (
+            <ClaimInquiryForm
+              laporanId={laporan.id}
+              onSuccess={this.refreshInquiries}
+              onCancel={() => this.setState({ inquirySheet: null })}
+            />
+          ) : (
+            <FoundInquiryForm
+              laporanId={laporan.id}
+              onSuccess={this.refreshInquiries}
+              onCancel={() => this.setState({ inquirySheet: null })}
+            />
+          )}
+        </div>
+      </div>
+    );
+  }
 
   private renderUpdateSheet() {
     const { laporan, sheetOpen } = this.state;
@@ -224,6 +311,26 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
       </div>
     );
 
+    const visibleInquiries = laporan.is_owned
+      ? laporan.inquiries
+      : laporan.inquiries.filter((q) => q.is_owned);
+
+    const inquiryBlock = visibleInquiries.length > 0 ? (
+      <div className="flex flex-col gap-3">
+        <p className="text-brand-muted text-xs font-semibold tracking-widest uppercase">
+          {laporan.is_owned ? `Inquiry Masuk (${visibleInquiries.length})` : 'Inquiry Saya'}
+        </p>
+        {visibleInquiries.map((inq) => (
+          <InquiryCard
+            key={inq.id}
+            inquiry={inq}
+            laporanIsOwned={laporan.is_owned}
+            onStatusUpdate={this.handleInquiryStatusUpdate}
+          />
+        ))}
+      </div>
+    ) : null;
+
     const infoBlock = (
       <div className="flex flex-col gap-3">
         <div className="p-4 rounded-2xl bg-brand-surface-alt">
@@ -255,7 +362,10 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
       </div>
     );
 
-    const ctaBlock = (canUpdateStatus || canDeleteLaporan) ? (
+    const canSendClaim = !is_owned && type === 'temuan' && status === 'active';
+    const canSendFound = !is_owned && type === 'hilang' && status === 'active';
+
+    const ctaBlock = (canUpdateStatus || canDeleteLaporan || canSendClaim || canSendFound) ? (
       <div className="flex flex-col gap-2">
         {canUpdateStatus && (
           <div className="flex gap-2">
@@ -286,11 +396,28 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
             {isDeleting ? <LoadingSpinner size="sm" /> : 'Hapus Laporan'}
           </button>
         )}
+        {canSendClaim && (
+          <button
+            onClick={() => this.setState({ inquirySheet: 'claim' })}
+            className="w-full py-4 rounded-2xl bg-brand-accent text-brand-bg font-bold text-sm tracking-wide hover:opacity-90 active:scale-[0.98] transition-all duration-200"
+          >
+            Ajukan Klaim
+          </button>
+        )}
+        {canSendFound && (
+          <button
+            onClick={() => this.setState({ inquirySheet: 'found' })}
+            className="w-full py-4 rounded-2xl bg-brand-accent text-brand-bg font-bold text-sm tracking-wide hover:opacity-90 active:scale-[0.98] transition-all duration-200"
+          >
+            Laporkan Temuan
+          </button>
+        )}
       </div>
     ) : null;
 
     return (
       <div className="min-h-screen bg-brand-bg flex flex-col lg:pl-14">
+        {this.renderInquirySheet()}
         {this.renderUpdateSheet()}
 
         {/* Header — shared */}
@@ -310,7 +437,10 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
           <div className="px-4 pt-3">
             <h2 className="text-brand-text font-bold text-xl">{barang.name}</h2>
           </div>
-          <div className="px-4 pt-4 pb-32">{infoBlock}</div>
+          <div className="px-4 pt-4 flex flex-col gap-6 pb-32">
+            {infoBlock}
+            {inquiryBlock}
+          </div>
           {ctaBlock && (
             <div className="fixed bottom-0 left-0 right-0 px-4 pb-6 pt-3 bg-brand-bg border-t border-white/5">
               {ctaBlock}
@@ -330,6 +460,7 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
             {badgesBlock}
             <h2 className="text-brand-text font-bold text-3xl leading-tight">{barang.name}</h2>
             {infoBlock}
+            {inquiryBlock}
             {ctaBlock && <div className="pt-2">{ctaBlock}</div>}
           </div>
         </div>
