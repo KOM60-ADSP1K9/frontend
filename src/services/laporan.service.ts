@@ -3,7 +3,13 @@ import type { LaporanStatus, UpdateStatusValue } from '../types/report.types';
 export class LaporanService {
   // Status yang boleh update STATUS laporan (via PATCH /reports/{id}/status)
   static canUpdate(status: LaporanStatus): boolean {
-    return status === 'draft' || status === 'active' || status === 'claim pending';
+    return (
+      status === 'draft' ||
+      status === 'active' ||
+      status === 'claim pending' ||
+      status === 'found claim pending' ||
+      status === 'in progress'
+    );
   }
 
   // Status yang boleh edit KONTEN laporan (via PATCH /reports/{id}/barang & details)
@@ -26,15 +32,26 @@ export class LaporanService {
     }
     if (status === 'active') {
       return [
-        { value: 'resolved', label: 'Tandai Ditemukan' },
+        { value: 'resolved', label: 'Tandai Diserahkan' },
         { value: 'self-resolved', label: 'Ditemukan Sendiri' },
-        { value: 'closed', label: 'Tutup Laporan', danger: true },
+        { value: 'closed', label: 'Batalkan Laporan', danger: true },
       ];
     }
     if (status === 'claim pending') {
       return [
-        { value: 'resolved', label: 'Konfirmasi Ditemukan' },
+        { value: 'resolved', label: 'Konfirmasi Diserahkan' },
         { value: 'active', label: 'Batalkan Klaim' },
+      ];
+    }
+    if (status === 'found claim pending') {
+      return [
+        { value: 'resolved', label: 'Konfirmasi Diserahkan' },
+        { value: 'active', label: 'Batalkan' },
+      ];
+    }
+    if (status === 'in progress') {
+      return [
+        { value: 'resolved', label: 'Tandai Diserahkan' },
       ];
     }
     return [];
@@ -45,6 +62,8 @@ export class LaporanService {
       draft: 'Draft',
       active: 'Aktif',
       'claim pending': 'Diklaim',
+      'found claim pending': 'Ada Temuan',
+      'in progress': 'Sedang Diproses',
       resolved: 'Ditemukan',
       closed: 'Ditutup',
       'self-resolved': 'Ditemukan Sendiri',
@@ -57,6 +76,8 @@ export class LaporanService {
       draft: 'bg-zinc-500/20 text-zinc-400',
       active: 'bg-sky-500/20 text-sky-400',
       'claim pending': 'bg-amber-500/20 text-amber-400',
+      'found claim pending': 'bg-indigo-500/20 text-indigo-400',
+      'in progress': 'bg-violet-500/20 text-violet-400',
       resolved: 'bg-emerald-500/20 text-emerald-400',
       closed: 'bg-zinc-500/20 text-zinc-500',
       'self-resolved': 'bg-teal-500/20 text-teal-400',
