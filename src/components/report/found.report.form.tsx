@@ -1,4 +1,5 @@
 import React from 'react';
+import { Camera, Image } from 'lucide-react';
 import { withRouter } from '../../router/with.router';
 import type { RouterProps } from '../../router/with.router';
 import { InputField } from '../common/input.field';
@@ -14,29 +15,6 @@ import type { Lokasi, KategoriBarang } from '../../types/report.types';
 
 function isMobileDevice(): boolean {
   return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-}
-
-class CameraIcon extends React.Component {
-  render() {
-    return (
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-        <circle cx="12" cy="13" r="4" />
-      </svg>
-    );
-  }
-}
-
-class ImageIcon extends React.Component {
-  render() {
-    return (
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-        <circle cx="8.5" cy="8.5" r="1.5" />
-        <polyline points="21 15 16 10 5 21" />
-      </svg>
-    );
-  }
 }
 
 interface State {
@@ -120,7 +98,7 @@ class FoundReportFormBase extends React.Component<RouterProps, State> {
         this.setState({ isStaff: res.data.role === 'STAFF' });
       }
     } catch {
-      // default mahasiswa
+
     }
   }
 
@@ -145,6 +123,11 @@ class FoundReportFormBase extends React.Component<RouterProps, State> {
   private handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (!['image/jpeg', 'image/png'].includes(file.type)) {
+      this.setState({ errors: { ...this.state.errors, photo: 'Hanya JPG atau PNG yang diizinkan' } });
+      e.target.value = '';
+      return;
+    }
     if (this.state.photoPreview) URL.revokeObjectURL(this.state.photoPreview);
     const preview = URL.createObjectURL(file);
     this.setState({ photo: file, photoPreview: preview, errors: { ...this.state.errors, photo: undefined } });
@@ -239,7 +222,7 @@ class FoundReportFormBase extends React.Component<RouterProps, State> {
               onClick={() => this.cameraInputRef.current?.click()}
               className="flex-1 flex flex-col items-center gap-2 py-4 rounded-xl border border-dashed border-brand-muted/40 bg-brand-surface-alt text-brand-muted hover:border-brand-accent/60 hover:text-brand-accent transition-colors"
             >
-              <CameraIcon />
+              <Camera size={20} />
               <span className="text-xs font-medium">Ambil Foto</span>
             </button>
             <button
@@ -247,11 +230,11 @@ class FoundReportFormBase extends React.Component<RouterProps, State> {
               onClick={() => this.galleryInputRef.current?.click()}
               className="flex-1 flex flex-col items-center gap-2 py-4 rounded-xl border border-dashed border-brand-muted/40 bg-brand-surface-alt text-brand-muted hover:border-brand-accent/60 hover:text-brand-accent transition-colors"
             >
-              <ImageIcon />
+              <Image size={20} />
               <span className="text-xs font-medium">Pilih File</span>
             </button>
-            <input ref={this.cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={this.handlePhotoChange} />
-            <input ref={this.galleryInputRef} type="file" accept="image/*" className="hidden" onChange={this.handlePhotoChange} />
+            <input ref={this.cameraInputRef} type="file" accept="image/jpeg,image/png" capture="environment" className="hidden" onChange={this.handlePhotoChange} />
+            <input ref={this.galleryInputRef} type="file" accept="image/jpeg,image/png" className="hidden" onChange={this.handlePhotoChange} />
           </div>
         ) : (
           <div>
@@ -260,11 +243,11 @@ class FoundReportFormBase extends React.Component<RouterProps, State> {
               onClick={() => this.galleryInputRef.current?.click()}
               className="w-full flex flex-col items-center justify-center gap-3 py-6 lg:py-0 lg:min-h-[260px] rounded-xl border border-dashed border-brand-muted/40 bg-brand-surface-alt text-brand-muted hover:border-brand-accent/60 hover:text-brand-accent transition-colors"
             >
-              <ImageIcon />
+              <Image size={20} />
               <span className="text-xs font-medium">Klik untuk memilih foto</span>
-              <span className="text-xs opacity-60">JPG, PNG, WEBP — maks. 5 MB</span>
+              <span className="text-xs opacity-60">JPG, PNG — maks. 5 MB</span>
             </button>
-            <input ref={this.galleryInputRef} type="file" accept="image/*" className="hidden" onChange={this.handlePhotoChange} />
+            <input ref={this.galleryInputRef} type="file" accept="image/jpeg,image/png" className="hidden" onChange={this.handlePhotoChange} />
           </div>
         )}
 
@@ -293,12 +276,11 @@ class FoundReportFormBase extends React.Component<RouterProps, State> {
 
     return (
       <form onSubmit={this.handleSubmit} noValidate className="flex flex-col gap-5 lg:flex-row lg:gap-8 lg:items-start">
-        {/* Kiri: foto (sticky di desktop) */}
+
         <div className="lg:w-72 lg:flex-shrink-0 lg:sticky lg:top-8">
           {this.renderPhotoUpload()}
         </div>
 
-        {/* Kanan: field-field */}
         <div className="flex flex-col gap-5 flex-1">
           <InputField label="Nama Barang" name="barang_name" value={barang_name} placeholder="Contoh: Tas ransel hitam" error={errors.barang_name} required onChange={this.handleTextChange} />
 

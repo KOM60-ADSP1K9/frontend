@@ -5,7 +5,7 @@ import { Alert } from '../../utils/alert';
 import { Toast } from '../../utils/toast';
 
 const MAX_SIZE_MB = 5;
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+const ALLOWED_TYPES = ['image/jpeg', 'image/png'];
 
 interface Props {
   laporanId: string;
@@ -22,7 +22,7 @@ interface State {
 }
 
 function validateFile(file: File): string | null {
-  if (!ALLOWED_TYPES.includes(file.type)) return 'Hanya gambar (JPG, PNG, WebP)';
+  if (!ALLOWED_TYPES.includes(file.type)) return 'Hanya JPG atau PNG yang diizinkan';
   if (file.size > MAX_SIZE_MB * 1024 * 1024) return `Maks ${MAX_SIZE_MB} MB`;
   return null;
 }
@@ -95,7 +95,7 @@ export class FoundInquiryForm extends React.Component<Props, State> {
 
     return (
       <form onSubmit={this.handleSubmit} className="flex flex-col gap-4">
-        {/* Message */}
+
         <div className="flex flex-col gap-1.5">
           <label className="text-xs font-semibold tracking-widest uppercase text-brand-muted">
             Pesan <span className="text-rose-400">*</span>
@@ -115,7 +115,6 @@ export class FoundInquiryForm extends React.Component<Props, State> {
           {errors.message && <p className="text-xs text-rose-400">⚠ {errors.message}</p>}
         </div>
 
-        {/* Contact */}
         <div className="flex flex-col gap-1.5">
           <label className="text-xs font-semibold tracking-widest uppercase text-brand-muted">
             Kontak Penemu <span className="text-rose-400">*</span>
@@ -135,7 +134,6 @@ export class FoundInquiryForm extends React.Component<Props, State> {
           {errors.contact && <p className="text-xs text-rose-400">⚠ {errors.contact}</p>}
         </div>
 
-        {/* Photo */}
         <div className="flex flex-col gap-1.5">
           <label className="text-xs font-semibold tracking-widest uppercase text-brand-muted">
             Foto Temuan <span className="text-rose-400">*</span>
@@ -155,7 +153,7 @@ export class FoundInquiryForm extends React.Component<Props, State> {
           <input
             ref={this.photoRef}
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/png"
             className="hidden"
             onChange={this.handleFileChange}
           />

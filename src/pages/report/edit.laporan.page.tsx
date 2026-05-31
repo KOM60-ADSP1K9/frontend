@@ -1,4 +1,5 @@
 import React from 'react';
+import { ChevronLeft } from 'lucide-react';
 import { withRouter } from '../../router/with.router';
 import type { RouterProps } from '../../router/with.router';
 import { InputField } from '../../components/common/input.field';
@@ -10,8 +11,6 @@ import { KategoriApi } from '../../api/kategori.api';
 import { Alert } from '../../utils/alert';
 import { Toast } from '../../utils/toast';
 import type { HomepageLaporanItem, Lokasi, KategoriBarang } from '../../types/report.types';
-
-// ── State ──────────────────────────────────────────────────────────────────
 
 interface State {
   barang_name: string;
@@ -34,8 +33,6 @@ interface State {
     date?: string;
   };
 }
-
-// ── Component ──────────────────────────────────────────────────────────────
 
 class EditLaporanPageBase extends React.Component<RouterProps, State> {
   private galleryInputRef = React.createRef<HTMLInputElement>();
@@ -113,6 +110,10 @@ class EditLaporanPageBase extends React.Component<RouterProps, State> {
   private handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (!['image/jpeg', 'image/png'].includes(file.type)) {
+      e.target.value = '';
+      return;
+    }
     if (this.state.photoPreview) URL.revokeObjectURL(this.state.photoPreview);
     this.setState({ photo: file, photoPreview: URL.createObjectURL(file) });
   };
@@ -197,18 +198,16 @@ class EditLaporanPageBase extends React.Component<RouterProps, State> {
 
     return (
       <div className="min-h-screen bg-brand-bg flex flex-col lg:pl-14">
-        {/* Header */}
+
         <div className="flex items-center gap-3 px-4 pt-5 pb-4 lg:pt-8 lg:max-w-2xl lg:mx-auto lg:w-full">
           <button onClick={() => this.props.navigate(-1)} className="w-9 h-9 flex items-center justify-center rounded-xl bg-brand-surface-alt text-brand-muted hover:text-brand-text transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="15 18 9 12 15 6" />
-            </svg>
+            <ChevronLeft size={18} />
           </button>
           <h1 className="text-brand-text font-bold text-base">Edit Laporan</h1>
         </div>
 
         <form onSubmit={this.handleSubmit} noValidate className="flex-1 px-4 pb-8 lg:pb-12 max-w-3xl mx-auto w-full flex flex-col gap-5 lg:flex-row lg:gap-8 lg:items-start">
-          {/* Kiri: foto (sticky di desktop) */}
+
           <div className="lg:w-72 lg:flex-shrink-0 lg:sticky lg:top-8 flex flex-col gap-2">
             <span className="text-xs font-semibold tracking-widest uppercase text-brand-muted">Foto Barang</span>
             {photoPreview ? (
@@ -232,11 +231,10 @@ class EditLaporanPageBase extends React.Component<RouterProps, State> {
                 </button>
               </div>
             )}
-            <input ref={this.galleryInputRef} type="file" accept="image/*" className="hidden" onChange={this.handlePhotoChange} />
+            <input ref={this.galleryInputRef} type="file" accept="image/jpeg,image/png" className="hidden" onChange={this.handlePhotoChange} />
             <p className="text-xs text-brand-muted">Kosongkan jika tidak ingin mengganti foto</p>
           </div>
 
-          {/* Kanan: field-field + CTA */}
           <div className="flex flex-col gap-5 flex-1 pb-24 lg:pb-0">
             <InputField label="Nama Barang" name="barang_name" value={barang_name} error={errors.barang_name} required onChange={this.handleTextChange} />
 
@@ -281,7 +279,6 @@ class EditLaporanPageBase extends React.Component<RouterProps, State> {
               <InputField label={isHilang ? 'Tanggal Kehilangan' : 'Tanggal Ditemukan'} name="date" type="date" value={date} error={errors.date} required onChange={this.handleTextChange} />
             </div>
 
-            {/* Submit inline di desktop */}
             <button
               onClick={this.handleSubmit}
               disabled={isSubmitting}
@@ -292,7 +289,6 @@ class EditLaporanPageBase extends React.Component<RouterProps, State> {
           </div>
         </form>
 
-        {/* Submit CTA — mobile only */}
         <div className="lg:hidden fixed bottom-0 left-0 right-0 px-4 pb-6 pt-3 bg-brand-bg border-t border-white/5">
           <button
             onClick={this.handleSubmit}
