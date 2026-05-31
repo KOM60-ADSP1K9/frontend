@@ -4,6 +4,7 @@ import { withRouter } from '../router/with.router';
 import type { RouterProps } from '../router/with.router';
 import { NotificationApi } from '../api/notification.api';
 import { LoadingSpinner } from '../components/common/loading.spinner';
+import { Toast } from '../utils/toast';
 import { BottomNavbar } from '../components/common/bottom.navbar';
 import type { NotificationItem } from '../types/notification.types';
 
@@ -80,7 +81,9 @@ class NotifikasiPageBase extends React.Component<RouterProps, State> {
       if (res.status === 'success') {
         this.setState({ notifications: res.data.notifications });
       }
-    } catch {  } finally {
+    } catch {
+      Toast.error('Gagal memuat notifikasi');
+    } finally {
       this.setState({ isLoading: false });
     }
   }
