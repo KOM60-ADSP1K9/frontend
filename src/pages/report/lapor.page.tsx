@@ -1,9 +1,11 @@
 import React from 'react';
+import { ChevronLeft } from 'lucide-react';
 import { withRouter } from '../../router/with.router';
 import type { RouterProps } from '../../router/with.router';
 import { BottomNavbar } from '../../components/common/bottom.navbar';
 import { LostReportForm } from '../../components/report/lost.report.form';
 import { FoundReportForm } from '../../components/report/found.report.form';
+import { UserCache } from '../../utils/user.cache';
 
 type FormMode = 'choose' | 'hilang' | 'temuan';
 
@@ -14,20 +16,22 @@ interface State {
 class LaporPageBase extends React.Component<RouterProps, State> {
   state: State = { mode: 'choose' };
 
-  componentDidMount() {
-    const params = new URLSearchParams(this.props.location.search);
+  private resolveMode(search: string): FormMode {
+    const params = new URLSearchParams(search);
     const mode = params.get('mode');
-    if (mode === 'hilang') this.setState({ mode: 'hilang' });
-    else if (mode === 'temuan') this.setState({ mode: 'temuan' });
+    const isStaff = UserCache.getRole() === 'STAFF';
+    if (mode === 'hilang') return isStaff ? 'temuan' : 'hilang';
+    if (mode === 'temuan') return 'temuan';
+    return isStaff ? 'temuan' : 'choose';
+  }
+
+  componentDidMount() {
+    this.setState({ mode: this.resolveMode(this.props.location.search) });
   }
 
   componentDidUpdate(prevProps: RouterProps) {
     if (prevProps.location.search !== this.props.location.search) {
-      const params = new URLSearchParams(this.props.location.search);
-      const mode = params.get('mode');
-      if (mode === 'hilang') this.setState({ mode: 'hilang' });
-      else if (mode === 'temuan') this.setState({ mode: 'temuan' });
-      else this.setState({ mode: 'choose' });
+      this.setState({ mode: this.resolveMode(this.props.location.search) });
     }
   }
 
@@ -82,9 +86,7 @@ class LaporPageBase extends React.Component<RouterProps, State> {
       <div className="w-full max-w-sm lg:max-w-3xl px-6">
         <div className="flex items-center gap-3 mb-6">
           <button onClick={() => this.props.navigate(-1)} className="text-brand-muted hover:text-brand-text transition-colors" aria-label="Kembali">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="15 18 9 12 15 6" />
-            </svg>
+            <ChevronLeft size={20} />
           </button>
           <h1 className="text-lg font-bold text-brand-text">{title}</h1>
         </div>

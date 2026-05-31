@@ -1,5 +1,5 @@
 import React from 'react';
-import { Inbox, SearchX } from 'lucide-react';
+import { Inbox, SearchX, Search, X, ListFilter, MoreVertical } from 'lucide-react';
 import { withRouter } from '../../router/with.router';
 import type { RouterProps } from '../../router/with.router';
 import { BottomNavbar } from '../../components/common/bottom.navbar';
@@ -39,8 +39,6 @@ const STATUS_OPTIONS: { value: LaporanStatus; label: string }[] = [
   { value: 'self-resolved', label: 'Ditemukan Sendiri' },
   { value: 'closed', label: 'Ditutup' },
 ];
-
-// ── Component ──────────────────────────────────────────────────────────────
 
 class RiwayatPageBase extends React.Component<RouterProps, State> {
   state: State = {
@@ -87,8 +85,6 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
     this.setState(next as State);
   }
 
-  // ── Filtering ─────────────────────────────────────────────────────────────
-
   private getFiltered(): HomepageLaporanItem[] {
     const { laporan, typeFilter, search, activeFilters } = this.state;
     const q = search.trim().toLowerCase();
@@ -125,8 +121,6 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
     const hasDate = !!(activeFilters.date_from || activeFilters.date_to);
     return [hasDate, !!activeFilters.kategoriId, !!activeFilters.lokasiId, !!activeFilters.status].filter(Boolean).length;
   }
-
-  // ── Handlers ──────────────────────────────────────────────────────────────
 
   private handleCardClick = (laporan: HomepageLaporanItem) => {
     this.props.navigate(`/laporan/${laporan.id}`, { state: { laporan } });
@@ -187,31 +181,15 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
     }));
   };
 
-  // ── Render helpers ────────────────────────────────────────────────────────
-
   private renderSearchBar() {
     const { search } = this.state;
     const count = this.activeFilterCount;
 
     return (
       <div className="flex gap-2 px-4 pb-3">
-        {/* Search input */}
+
         <div className="flex-1 relative">
-          <svg
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-muted"
-            xmlns="http://www.w3.org/2000/svg"
-            width="15"
-            height="15"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-muted" />
           <input
             type="text"
             value={search}
@@ -221,15 +199,11 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
           />
           {search && (
             <button onClick={() => this.setState({ search: '' })} className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-muted hover:text-brand-text">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
+              <X size={14} />
             </button>
           )}
         </div>
 
-        {/* Filter button */}
         <button
           onClick={this.openFilterSheet}
           className={[
@@ -237,11 +211,7 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
             count > 0 ? 'bg-brand-accent text-brand-bg' : 'bg-brand-surface-alt text-brand-muted hover:text-brand-text',
           ].join(' ')}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="4" y1="6" x2="20" y2="6" />
-            <line x1="8" y1="12" x2="16" y2="12" />
-            <line x1="11" y1="18" x2="13" y2="18" />
-          </svg>
+          <ListFilter size={14} />
           Filter
           {count > 0 && <span className="w-4 h-4 rounded-full bg-brand-bg text-brand-accent text-[10px] font-bold flex items-center justify-center">{count}</span>}
         </button>
@@ -287,12 +257,11 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
           className="fixed bottom-0 left-0 right-0 z-[10000] bg-brand-surface rounded-t-3xl max-w-lg mx-auto max-h-[80vh] flex flex-col lg:static lg:z-auto lg:max-w-none lg:w-[600px] lg:rounded-2xl lg:max-h-[85vh]"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Handle (mobile only) */}
+
           <div className="pt-4 pb-2 flex-shrink-0 lg:hidden">
             <div className="w-10 h-1 bg-brand-muted/30 rounded-full mx-auto" />
           </div>
 
-          {/* Title */}
           <div className="flex items-center justify-between px-6 py-3 flex-shrink-0">
             <p className="text-brand-text font-bold text-base">Filter</p>
             <button onClick={this.resetFilters} className="text-brand-muted text-xs hover:text-brand-text transition-colors">
@@ -300,9 +269,8 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
             </button>
           </div>
 
-          {/* Scrollable content */}
           <div className="flex-1 overflow-y-auto px-6 pb-4 flex flex-col gap-5">
-            {/* Filter: Tanggal */}
+
             <div>
               <div className="flex items-center justify-between mb-2">
                 <p className="text-brand-muted text-xs font-semibold tracking-widest uppercase">Tanggal Kejadian</p>
@@ -343,7 +311,6 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
               </div>
             </div>
 
-            {/* Filter: Kategori */}
             <div>
               <p className="text-brand-muted text-xs font-semibold tracking-widest uppercase mb-2">Kategori Barang</p>
               <div className="flex flex-wrap gap-2">
@@ -362,7 +329,6 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
               </div>
             </div>
 
-            {/* Filter: Lokasi */}
             {lokasiEntries.length > 0 && (
               <div>
                 <div className="flex items-center justify-between mb-2">
@@ -390,7 +356,6 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
               </div>
             )}
 
-            {/* Filter: Status */}
             <div>
               <p className="text-brand-muted text-xs font-semibold tracking-widest uppercase mb-2">Status Laporan</p>
               <div className="flex flex-wrap gap-2">
@@ -410,7 +375,6 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
             </div>
           </div>
 
-          {/* Apply button */}
           <div className="px-6 pb-8 pt-3 flex-shrink-0 border-t border-white/5">
             <button onClick={this.applyFilters} className="w-full py-4 rounded-2xl bg-brand-accent text-brand-bg font-bold text-sm tracking-wide hover:opacity-90 active:scale-[0.98] transition-all duration-200">
               Terapkan Filter
@@ -425,7 +389,7 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
     const { sheetLaporan } = this.state;
     if (!sheetLaporan) return null;
 
-    const options = LaporanService.nextStatusOptions(sheetLaporan.status);
+    const options = LaporanService.nextStatusOptions(sheetLaporan.status, sheetLaporan.type);
 
     return (
       <div className="fixed inset-0 z-[9999] bg-black/60 lg:flex lg:items-center lg:justify-center" onClick={() => this.setState({ sheetLaporan: null })}>
@@ -463,19 +427,16 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
         {this.renderUpdateSheet()}
 
         <div className="w-full max-w-3xl mx-auto flex flex-col flex-1">
-          {/* Header */}
+
           <div className="px-5 pt-5 pb-3 lg:pt-8">
             <h1 className="text-brand-text font-bold text-lg lg:text-2xl">Semua Laporan</h1>
             <p className="text-brand-muted text-xs mt-0.5">Feed laporan hilang & temuan</p>
           </div>
 
-          {/* Search bar + Filter button */}
           {this.renderSearchBar()}
 
-          {/* Type tabs */}
           {this.renderTypeTabs()}
 
-          {/* List */}
           <div className="flex-1 px-4 pb-24">
             {isLoading ? (
               <div className="flex justify-center py-16">
@@ -507,11 +468,7 @@ class RiwayatPageBase extends React.Component<RouterProps, State> {
                     <LaporanCard laporan={item} lokasiMap={lokasiMap} kategoriMap={kategoriMap} showStatus onClick={this.handleCardClick} />
                     {item.is_owned && LaporanService.canUpdate(item.status) && (
                       <button onClick={() => this.setState({ sheetLaporan: item })} className="absolute top-3 right-3 text-brand-muted hover:text-brand-accent transition-colors" aria-label="Update status">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                          <circle cx="12" cy="5" r="1.5" />
-                          <circle cx="12" cy="12" r="1.5" />
-                          <circle cx="12" cy="19" r="1.5" />
-                        </svg>
+                        <MoreVertical size={16} />
                       </button>
                     )}
                   </div>

@@ -7,15 +7,13 @@ import { LokasiApi } from '../../api/lokasi.api';
 import { KategoriApi } from '../../api/kategori.api';
 import { Alert } from '../../utils/alert';
 import { Toast } from '../../utils/toast';
-import { ImageOff, FileSearch } from 'lucide-react';
+import { ImageOff, FileSearch, ChevronLeft } from 'lucide-react';
 import { LaporanService } from '../../services/laporan.service';
 import { InquiryCard } from '../../components/report/inquiry.card';
 import { ClaimInquiryForm } from '../../components/report/claim.inquiry.form';
 import { FoundInquiryForm } from '../../components/report/found.inquiry.form';
 import { InquiryApi } from '../../api/inquiry.api';
 import type { HomepageLaporanItem, LaporanDetailResponse, UpdateStatusValue, InquiryStatus } from '../../types/report.types';
-
-// ── State ──────────────────────────────────────────────────────────────────
 
 interface State {
   laporan: LaporanDetailResponse | null;
@@ -28,8 +26,6 @@ interface State {
   inquirySheet: 'claim' | 'found' | null;
   imgError: boolean;
 }
-
-// ── Component ──────────────────────────────────────────────────────────────
 
 class LaporanDetailPageBase extends React.Component<RouterProps, State> {
   state: State = {
@@ -61,7 +57,7 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
     }
 
     if (passed) {
-      // Fast path: convert HomepageLaporanItem → LaporanDetailResponse
+
       const laporan: LaporanDetailResponse = {
         ...passed,
         lost_at_location_id: passed.lost_at_location?.id ?? null,
@@ -69,7 +65,7 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
         inquiries: [],
       };
       this.setState({ laporan, lokasiMap, kategoriMap, isLoading: false });
-      // Background fetch to hydrate inquiries
+
       LaporanApi.getLaporanDetail(laporanId).then((res) => {
         if (res.status === 'success') {
           this.setState((prev) =>
@@ -78,7 +74,7 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
         }
       }).catch(() => {});
     } else {
-      // Slow path: fetch from BE (direct URL / page refresh)
+
       try {
         const res = await LaporanApi.getLaporanDetail(laporanId);
         if (res.status === 'success') {
@@ -163,7 +159,7 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
           prev.laporan ? { laporan: { ...prev.laporan, inquiries: res.data.inquiries } } : null,
         );
       }
-    } catch { /* silently fail */ }
+    } catch {  }
   };
 
   private handleInquiryStatusUpdate = async (inquiryId: string, status: InquiryStatus) => {
@@ -229,7 +225,7 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
     const { laporan, sheetOpen } = this.state;
     if (!laporan || !sheetOpen) return null;
 
-    const options = LaporanService.nextStatusOptions(laporan.status);
+    const options = LaporanService.nextStatusOptions(laporan.status, laporan.type);
 
     return (
       <div className="fixed inset-0 z-40 bg-black/60 lg:flex lg:items-center lg:justify-center" onClick={() => this.setState({ sheetOpen: false })}>
@@ -420,17 +416,13 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
         {this.renderInquirySheet()}
         {this.renderUpdateSheet()}
 
-        {/* Header — shared */}
         <div className="flex items-center gap-3 px-4 pt-5 pb-4 lg:px-8 lg:pt-8 lg:max-w-5xl lg:mx-auto lg:w-full">
           <button onClick={() => this.props.navigate(-1)} className="w-9 h-9 flex items-center justify-center rounded-xl bg-brand-surface-alt text-brand-muted hover:text-brand-text transition-colors" aria-label="Kembali">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="15 18 9 12 15 6" />
-            </svg>
+            <ChevronLeft size={18} />
           </button>
           <h1 className="text-brand-text font-bold text-base lg:text-xl flex-1 truncate">Detail Laporan</h1>
         </div>
 
-        {/* Mobile layout */}
         <div className="lg:hidden flex flex-col flex-1">
           <div className="mx-4 h-56">{photoBlock}</div>
           <div className="flex gap-2 px-4 pt-4">{badgesBlock}</div>
@@ -448,14 +440,12 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
           )}
         </div>
 
-        {/* Desktop layout — dua kolom */}
         <div className="hidden lg:flex gap-8 px-8 pb-12 max-w-5xl mx-auto w-full flex-1">
-          {/* Kiri: foto */}
+
           <div className="w-[400px] flex-shrink-0">
             <div className="h-[420px] sticky top-8">{photoBlock}</div>
           </div>
 
-          {/* Kanan: detail + CTA */}
           <div className="flex-1 flex flex-col gap-5 min-w-0">
             {badgesBlock}
             <h2 className="text-brand-text font-bold text-3xl leading-tight">{barang.name}</h2>

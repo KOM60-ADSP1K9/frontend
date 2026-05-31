@@ -1,4 +1,5 @@
 import React from 'react';
+import { ChevronDown } from 'lucide-react';
 
 interface Option {
   value: string;
@@ -51,11 +52,8 @@ export class SelectField extends React.Component<Props> {
             ))}
           </select>
 
-          {/* Chevron */}
           <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-brand-muted">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="6 9 12 15 18 9" />
-            </svg>
+            <ChevronDown size={16} />
           </div>
         </div>
 

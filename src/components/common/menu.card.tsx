@@ -1,4 +1,5 @@
 import React from 'react';
+import { ChevronRight } from 'lucide-react';
 
 interface Props {
   icon: React.ReactNode;
@@ -23,9 +24,7 @@ export class MenuCard extends React.Component<Props> {
           <p className="text-sm font-semibold text-brand-text">{title}</p>
           {subtitle && <p className="text-xs text-brand-muted mt-0.5">{subtitle}</p>}
         </div>
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-brand-muted flex-shrink-0">
-          <polyline points="9 18 15 12 9 6" />
-        </svg>
+        <ChevronRight size={16} className="text-brand-muted flex-shrink-0" />
       </button>
     );
   }

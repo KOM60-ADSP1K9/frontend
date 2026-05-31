@@ -1,4 +1,5 @@
 import React from 'react';
+import { Image } from 'lucide-react';
 import type { InquiryResponse, InquiryStatus } from '../../types/report.types';
 import { LoadingSpinner } from '../common/loading.spinner';
 
@@ -67,11 +68,7 @@ export class InquiryCard extends React.Component<Props, State> {
         rel="noopener noreferrer"
         className="inline-flex items-center gap-1.5 text-xs text-brand-accent underline underline-offset-2 hover:opacity-80 transition-opacity"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="3" y="3" width="18" height="18" rx="2" />
-          <circle cx="8.5" cy="8.5" r="1.5" />
-          <polyline points="21 15 16 10 5 21" />
-        </svg>
+        <Image size={13} />
         {label}
       </a>
     );
@@ -82,12 +79,11 @@ export class InquiryCard extends React.Component<Props, State> {
     const { isUpdating } = this.state;
     const { type, status, sender, message_content, send_date, is_owned } = inquiry;
 
-    // Owner lihat inquiry orang lain → tampil tombol aksi
     const showActions = laporanIsOwned && !is_owned;
 
     return (
       <div className="p-4 rounded-2xl bg-brand-surface-alt flex flex-col gap-3">
-        {/* Header row */}
+
         <div className="flex items-center gap-2 flex-wrap">
           <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg tracking-wide ${TYPE_COLOR[type]}`}>
             {TYPE_LABEL[type]}
@@ -102,13 +98,11 @@ export class InquiryCard extends React.Component<Props, State> {
           )}
         </div>
 
-        {/* Message */}
         <div>
           <p className="text-brand-muted text-xs font-semibold tracking-widest uppercase mb-1">Pesan</p>
           <p className="text-brand-text text-sm leading-relaxed">{message_content}</p>
         </div>
 
-        {/* Sender + date */}
         <div className="flex flex-col gap-0.5">
           {sender && (
             <p className="text-brand-muted text-xs">{sender.email}{sender.nim ? ` · ${sender.nim}` : ''}</p>
@@ -116,7 +110,6 @@ export class InquiryCard extends React.Component<Props, State> {
           <p className="text-brand-muted text-xs">{formatDateTime(send_date)}</p>
         </div>
 
-        {/* Claim-specific fields */}
         {type === 'claim' && (
           <div className="flex flex-col gap-2 pt-1 border-t border-white/5">
             {inquiry.claimer_contact && (
@@ -132,7 +125,6 @@ export class InquiryCard extends React.Component<Props, State> {
           </div>
         )}
 
-        {/* Found-specific fields */}
         {type === 'found' && (
           <div className="flex flex-col gap-2 pt-1 border-t border-white/5">
             {inquiry.finder_contact && (
@@ -154,7 +146,6 @@ export class InquiryCard extends React.Component<Props, State> {
           </div>
         )}
 
-        {/* Action buttons — owner only, not own inquiry */}
         {showActions && status === 'proposed' && (
           <div className="flex gap-2 pt-1 border-t border-white/5">
             <button
