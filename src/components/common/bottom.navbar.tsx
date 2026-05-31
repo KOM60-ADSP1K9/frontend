@@ -1,38 +1,60 @@
 import React from 'react';
-import { Home, ClipboardList, ScanLine, UserCircle, Sun, Moon } from 'lucide-react';
+import { Home, ClipboardList, ScanLine, UserCircle, Sun, Moon, Users } from 'lucide-react';
 import { withRouter } from '../../router/with.router';
 import type { RouterProps } from '../../router/with.router';
 import { LaporBottomSheet } from './lapor.bottom.sheet';
 import { ThemeManager } from '../../utils/theme';
+import { UserCache } from '../../utils/user.cache';
 
 interface NavTab {
   key: string;
   path?: string;
   label: string;
   icon: React.ReactNode;
+  staffOnly?: boolean;
 }
 
 interface State {
   sheetOpen: boolean;
   theme: 'dark' | 'light';
+  role: 'MAHASISWA' | 'STAFF' | null;
 }
 
 class BottomNavbarBase extends React.Component<RouterProps, State> {
-  state: State = { sheetOpen: false, theme: ThemeManager.get() };
+  state: State = { sheetOpen: false, theme: ThemeManager.get(), role: UserCache.getRole() };
+
+  componentDidMount() {
+    this.setState({ role: UserCache.getRole() });
+  }
 
   private readonly allTabs: NavTab[] = [
     { key: 'beranda', path: '/', label: 'BERANDA', icon: <Home size={22} /> },
     { key: 'riwayat', path: '/laporan', label: 'CARI LAPORAN', icon: <ClipboardList size={22} /> },
     { key: 'lapor', label: 'LAPOR', icon: <ScanLine size={22} /> },
+    { key: 'pengguna', path: '/staff/users', label: 'PENGGUNA', icon: <Users size={22} />, staffOnly: true },
     { key: 'profile', path: '/profile', label: 'PROFIL', icon: <UserCircle size={22} /> },
   ];
 
-  private readonly sidebarTopTabs = this.allTabs.filter((t) => t.key !== 'profile');
-  private readonly sidebarBottomTabs = this.allTabs.filter((t) => t.key === 'profile');
+  private getVisibleTabs(): NavTab[] {
+    const { role } = this.state;
+    return this.allTabs.filter((t) => !t.staffOnly || role === 'STAFF');
+  }
+
+  private getSidebarTopTabs(): NavTab[] {
+    return this.getVisibleTabs().filter((t) => t.key !== 'profile');
+  }
+
+  private getSidebarBottomTabs(): NavTab[] {
+    return this.getVisibleTabs().filter((t) => t.key === 'profile');
+  }
 
   private handleNav = (tab: NavTab) => {
     if (tab.key === 'lapor') {
-      this.setState({ sheetOpen: true });
+      if (UserCache.getRole() === 'STAFF') {
+        this.props.navigate('/lapor?mode=temuan');
+      } else {
+        this.setState({ sheetOpen: true });
+      }
       return;
     }
     if (tab.path) this.props.navigate(tab.path);
@@ -104,20 +126,18 @@ class BottomNavbarBase extends React.Component<RouterProps, State> {
           }}
         />
 
-        {/* Mobile: bottom navigation bar */}
         <nav className="fixed bottom-0 left-0 right-0 z-40 bg-brand-surface border-t border-white/5 lg:hidden">
           <div className="max-w-lg mx-auto flex items-center justify-around h-16 px-2">
-            {this.allTabs.map((tab) => this.renderBottomBarItem(tab))}
+            {this.getVisibleTabs().map((tab) => this.renderBottomBarItem(tab))}
           </div>
         </nav>
 
-        {/* Desktop: left sidebar */}
         <nav className="hidden lg:flex fixed left-0 top-0 h-full w-14 z-40 bg-brand-surface border-r border-white/5 flex-col items-center py-2">
           <div className="flex flex-col w-full">
-            {this.sidebarTopTabs.map((tab) => this.renderSidebarItem(tab))}
+            {this.getSidebarTopTabs().map((tab) => this.renderSidebarItem(tab))}
           </div>
           <div className="flex flex-col w-full mt-auto">
-            {/* Theme toggle */}
+
             <button
               type="button"
               onClick={this.handleThemeToggle}
@@ -127,7 +147,7 @@ class BottomNavbarBase extends React.Component<RouterProps, State> {
               {theme === 'dark' ? <Sun size={22} /> : <Moon size={22} />}
               <span className="text-[7px] font-bold tracking-widest">TEMA</span>
             </button>
-            {this.sidebarBottomTabs.map((tab) => this.renderSidebarItem(tab))}
+            {this.getSidebarBottomTabs().map((tab) => this.renderSidebarItem(tab))}
           </div>
         </nav>
       </>
