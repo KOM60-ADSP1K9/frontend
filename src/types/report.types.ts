@@ -1,11 +1,7 @@
-// ── Kategori Barang ────────────────────────────────────────────────────────
-
 export interface KategoriBarang {
   id: string;
   name: string;
 }
-
-// ── Lokasi ─────────────────────────────────────────────────────────────────
 
 export interface Lokasi {
   id: string;
@@ -23,8 +19,6 @@ export interface LokasiEmbedded {
   longitude: number;
 }
 
-// ── Barang ─────────────────────────────────────────────────────────────────
-
 export interface BarangResponse {
   id: string;
   name: string;
@@ -35,8 +29,6 @@ export interface BarangResponse {
   created_at: string | null;
   updated_at: string | null;
 }
-
-// ── Laporan ─────────────────────────────────────────────────────────────────
 
 export type LaporanType = 'hilang' | 'temuan';
 export type LaporanStatus =
@@ -63,8 +55,6 @@ export interface LaporanResponse {
   updated_at: string | null;
   barang: BarangResponse;
 }
-
-// ── Request payloads ────────────────────────────────────────────────────────
 
 export interface UpdateBarangPayload {
   barang_name: string;
@@ -96,8 +86,6 @@ export interface FoundReportPayload {
   found_at_date: string;
 }
 
-// ── Homepage list item ──────────────────────────────────────────────────────
-
 export interface HomepageUserInfo {
   email: string;
   nim: string | null;
@@ -118,8 +106,6 @@ export interface HomepageLaporanItem {
   user: HomepageUserInfo | null;
   is_owned: boolean;
 }
-
-// ── Laporan Detail (GET /reports/{id}) ──────────────────────────────────────
 
 export type InquiryType = 'claim' | 'found';
 export type InquiryStatus = 'proposed' | 'active' | 'rejected';
@@ -173,8 +159,6 @@ export interface FoundInquiryPayload {
   finder_contact: string;
   photo: File;
 }
-
-// ── Query params ────────────────────────────────────────────────────────────
 
 export interface LaporanQueryParams {
   type?: LaporanType;

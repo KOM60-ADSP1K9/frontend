@@ -26,7 +26,7 @@ export class LaporBottomSheet extends React.Component<Props> {
         style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)' }}
       >
         <div className="w-full lg:w-[480px] bg-brand-surface rounded-t-3xl lg:rounded-2xl px-5 pt-5 pb-10 lg:px-8 lg:pt-7 lg:pb-8">
-          {/* Handle bar (mobile only) */}
+
           <div className="w-10 h-1 rounded-full bg-brand-muted/30 mx-auto mb-5 lg:hidden" />
 
           <div className="flex items-center justify-between mb-5">

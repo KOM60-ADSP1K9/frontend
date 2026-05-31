@@ -8,10 +8,6 @@ export interface RouterProps {
   params: Readonly<Record<string, string>>;
 }
 
-/**
- * withRouter – HOC that injects navigate, location, and params
- * into class components (React Router v6 equivalent of the old withRouter).
- */
 export function withRouter<P extends RouterProps>(Component: React.ComponentType<P>): React.ComponentType<Omit<P, keyof RouterProps>> {
   const Wrapper = (props: Omit<P, keyof RouterProps>) => {
     const navigate = useNavigate();

@@ -1,7 +1,5 @@
 import type { ApiResponse } from './api.types';
 
-// ── Request types ──────────────────────────────────────────────────────────
-
 export interface RegisterRequest {
   email: string;
   password: string;
@@ -14,8 +12,6 @@ export interface LoginRequest {
   email: string;
   password: string;
 }
-
-// ── Response data types ────────────────────────────────────────────────────
 
 export interface SupervisedAt {
   id: string;
@@ -50,7 +46,5 @@ export interface RegisterResponseData {
 export interface LoginResponseData {
   access_token: string;
 }
-
-// ── Re-export for convenience ──────────────────────────────────────────────
 
 export type { ApiResponse };
