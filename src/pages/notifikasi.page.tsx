@@ -123,30 +123,32 @@ class NotifikasiPageBase extends React.Component<RouterProps, State> {
     return (
       <div className="min-h-screen bg-brand-bg flex flex-col lg:pl-14">
 
-        <div className="flex items-center justify-between px-4 pt-5 pb-4 lg:px-8 lg:pt-8 lg:max-w-2xl lg:mx-auto lg:w-full">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => this.props.navigate(-1)}
-              className="w-9 h-9 flex items-center justify-center rounded-xl bg-brand-surface-alt text-brand-muted hover:text-brand-text transition-colors"
-              aria-label="Kembali"
-            >
-              <ChevronLeft size={18} />
-            </button>
-            <h1 className="text-brand-text font-bold text-base lg:text-xl">Notifikasi</h1>
-          </div>
+        <div className="w-full max-w-3xl mx-auto px-4 md:px-6 lg:px-8 pt-5 pb-4 lg:pt-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => this.props.navigate(-1)}
+                className="w-9 h-9 flex items-center justify-center rounded-xl bg-brand-surface-alt text-brand-muted hover:text-brand-text transition-colors"
+                aria-label="Kembali"
+              >
+                <ChevronLeft size={18} />
+              </button>
+              <h1 className="text-brand-text font-bold text-base lg:text-xl">Notifikasi</h1>
+            </div>
 
-          {hasUnread && (
-            <button
-              onClick={this.handleMarkAllRead}
-              disabled={isMarkingAll}
-              className="text-xs text-brand-accent font-semibold hover:opacity-80 transition-opacity disabled:opacity-50"
-            >
-              Tandai semua terbaca
-            </button>
-          )}
+            {hasUnread && (
+              <button
+                onClick={this.handleMarkAllRead}
+                disabled={isMarkingAll}
+                className="text-xs text-brand-accent font-semibold hover:opacity-80 transition-opacity disabled:opacity-50"
+              >
+                Tandai semua terbaca
+              </button>
+            )}
+          </div>
         </div>
 
-        <div className="flex-1 lg:max-w-2xl lg:mx-auto lg:w-full">
+        <div className="flex-1 w-full max-w-3xl mx-auto">
           {isLoading ? (
             <div className="flex justify-center py-16">
               <LoadingSpinner />
@@ -162,42 +164,46 @@ class NotifikasiPageBase extends React.Component<RouterProps, State> {
               </div>
             </div>
           ) : (
-            <div className="pb-24 lg:pb-8">
+            <div className="pb-24 lg:pb-12">
               {groups.map((group) => (
                 <div key={group.label}>
-
-                  <p className="text-brand-muted text-xs font-semibold tracking-widest uppercase px-4 py-3 lg:px-8">
+                  <p className="text-brand-muted text-xs font-semibold tracking-widest uppercase px-4 md:px-6 lg:px-8 py-3">
                     {group.label}
                   </p>
 
-                  {group.items.map((item) => (
-                    <button
-                      key={item.id}
-                      onClick={() => this.handleItemClick(item)}
-                      className={[
-                        'w-full text-left px-4 py-3.5 flex items-start gap-3 transition-colors duration-150 lg:px-8',
-                        !item.is_read ? 'bg-brand-accent/5 hover:bg-brand-accent/10' : 'hover:bg-brand-surface-alt/50',
-                      ].join(' ')}
-                    >
-                      {typeIcon(item.type)}
+                  <div className="lg:px-8 lg:flex lg:flex-col lg:gap-1">
+                    {group.items.map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => this.handleItemClick(item)}
+                        className={[
+                          'w-full text-left px-4 md:px-6 lg:px-4 py-3.5 flex items-start gap-3 transition-all duration-150',
+                          'lg:rounded-xl',
+                          !item.is_read
+                            ? 'bg-brand-accent/5 hover:bg-brand-accent/10'
+                            : 'hover:bg-brand-surface-alt/60',
+                        ].join(' ')}
+                      >
+                        {typeIcon(item.type)}
 
-                      <div className="flex-1 min-w-0">
-                        <p className={`text-sm leading-snug ${!item.is_read ? 'text-brand-text font-semibold' : 'text-brand-text font-medium'}`}>
-                          {item.title}
-                        </p>
-                        <p className="text-brand-muted text-xs mt-0.5 leading-snug line-clamp-2">
-                          {item.message}
-                        </p>
-                        <p className="text-brand-muted text-[10px] mt-1.5">
-                          {timeAgo(item.created_at)}
-                        </p>
-                      </div>
+                        <div className="flex-1 min-w-0">
+                          <p className={`text-sm leading-snug ${!item.is_read ? 'text-brand-text font-semibold' : 'text-brand-text font-medium'}`}>
+                            {item.title}
+                          </p>
+                          <p className="text-brand-muted text-xs mt-0.5 leading-snug line-clamp-2">
+                            {item.message}
+                          </p>
+                          <p className="text-brand-muted text-[10px] mt-1.5">
+                            {timeAgo(item.created_at)}
+                          </p>
+                        </div>
 
-                      {!item.is_read && (
-                        <span className="w-2 h-2 rounded-full bg-brand-accent flex-shrink-0 mt-2" />
-                      )}
-                    </button>
-                  ))}
+                        {!item.is_read && (
+                          <span className="w-2 h-2 rounded-full bg-brand-accent flex-shrink-0 mt-2" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               ))}
             </div>
