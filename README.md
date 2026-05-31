@@ -1,73 +1,155 @@
-# React + TypeScript + Vite
+# Sistem Lost & Found IPB — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Antarmuka pengguna untuk sistem pelaporan kehilangan dan penemuan barang di lingkungan IPB University, dibangun dengan **React 19 + TypeScript + Vite**.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+**Mata Kuliah:** KOM 1337 Analisis dan Desain Sistem
 
-## React Compiler
+**Kelompok 9 - P1**
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| No | Nama | NIM |
+|----|------|-----|
+| 1 | Faqih Firman Pratama | G6401231063 |
+| 2 | Aghnat Hasya Sayyidina | G6401231074 |
+| 3 | Anargya Isadhi Maheswara | G6401231118 |
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Tech Stack
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- **Framework:** React 19
+- **Language:** TypeScript
+- **Build Tool:** Vite
+- **Styling:** Tailwind CSS v4
+- **Routing:** React Router v7
+- **HTTP Client:** Axios
+- **Maps:** Leaflet
+- **Icons:** Lucide React
+- **Notifications:** React Hot Toast, SweetAlert2
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Struktur Proyek
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+src/
+├── api/                    # Axios API clients per resource
+│   ├── client.ts           # Axios instance + interceptor (JWT)
+│   ├── auth.api.ts         # Auth (login, register, verify email, profil)
+│   ├── laporan.api.ts      # Laporan (CRUD, status update)
+│   ├── inquiry.api.ts      # Inquiry (klaim & temuan)
+│   ├── notification.api.ts # Notifikasi
+│   ├── lokasi.api.ts       # Lokasi
+│   ├── kategori.api.ts     # Kategori barang
+│   └── user.api.ts         # User (staff)
+├── components/
+│   ├── auth/               # LoginForm, RegisterForm
+│   ├── common/             # BottomNavbar, LaporBottomSheet, NotificationBell,
+│   │                       # MenuCard, SelectField, LoadingSpinner, InputField
+│   └── report/             # ReportCard, LaporanMap, ClaimInquiryForm,
+│                           # FoundInquiryForm, FoundReportForm, LostReportForm,
+│                           # InquiryCard
+├── pages/
+│   ├── auth/               # LoginPage, RegisterPage, ProfilePage, VerifyEmailPage
+│   ├── student/            # BerandaPage (home)
+│   ├── report/             # RiwayatPage, LaporPage, LaporanDetailPage,
+│   │                       # EditLaporanPage, LaporanSayaPage
+│   ├── staff/              # UsersPage
+│   └── notifikasi.page.tsx
+├── router/
+│   ├── app.router.tsx      # Definisi semua route
+│   ├── protected.route.tsx # Guard untuk route yang butuh auth
+│   └── with.router.tsx     # HOC: inject router props ke class component
+├── services/
+│   └── laporan.service.ts  # Business logic laporan di sisi klien
+├── types/                  # TypeScript type definitions
+│   ├── auth.types.ts
+│   ├── report.types.ts
+│   ├── notification.types.ts
+│   ├── api.types.ts
+│   └── ui.types.ts
+└── utils/
+    ├── alert.ts            # SweetAlert2 helpers
+    ├── toast.ts            # React Hot Toast helpers
+    ├── theme.ts            # Tema / warna
+    └── user.cache.ts       # Cache data user di localStorage
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Halaman & Routing
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+| Route | Halaman | Auth |
+|-------|---------|------|
+| `/login` | Login | — |
+| `/register` | Registrasi | — |
+| `/auth/verify-email` | Verifikasi email | — |
+| `/` | Beranda (daftar laporan) | JWT |
+| `/laporan` | Cari semua laporan | JWT |
+| `/laporan/:id` | Detail laporan | JWT |
+| `/laporan/:id/edit` | Edit laporan | JWT |
+| `/laporan-saya` | Laporan saya | JWT |
+| `/lapor` | Buat laporan baru | JWT |
+| `/notifikasi` | Notifikasi | JWT |
+| `/profile` | Profil pengguna | JWT |
+| `/staff/users` | Daftar user (staff) | JWT |
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Prerequisites
+
+- Node.js 20+
+- npm / pnpm / yarn
+
+## Instalasi
+
+1. **Clone repository**
+
+   ```bash
+   git clone <repository-url>
+   cd frontend
+   ```
+
+2. **Install dependensi**
+
+   ```bash
+   npm install
+   ```
+
+3. **Setup environment variables**
+
+   ```bash
+   cp .env.example .env
+   # Edit .env sesuai konfigurasi
+   ```
+
+## Konfigurasi
+
+Edit file `.env`:
+
+```env
+VITE_API_BASE_URL=http://localhost:9000
+```
+
+## Menjalankan Aplikasi
+
+**Development:**
+
+```bash
+npm run dev
+```
+
+Aplikasi tersedia di `http://localhost:5173`
+
+**Build production:**
+
+```bash
+npm run build
+```
+
+**Preview build:**
+
+```bash
+npm run preview
+```
+
+## Linting
+
+```bash
+npm run lint
 ```
