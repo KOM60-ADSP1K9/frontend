@@ -6,6 +6,7 @@ import type { HomepageLaporanItem, LokasiEmbedded } from '../../types/report.typ
 interface Props {
   laporan: HomepageLaporanItem[];
   onMarkerClick?: (items: HomepageLaporanItem[]) => void;
+  zoomControl?: boolean;
 }
 
 type LocationGroup = { loc: LokasiEmbedded; items: HomepageLaporanItem[] };
@@ -48,20 +49,20 @@ function makeGroupIcon(items: HomepageLaporanItem[]): L.DivIcon {
   });
 }
 
-export const LaporanMap: React.FC<Props> = ({ laporan, onMarkerClick }) => {
+export const LaporanMap: React.FC<Props> = ({ laporan, onMarkerClick, zoomControl = false }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<L.Marker[]>([]);
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
-    // Skip init when container is inside a display:none parent (e.g. lg:hidden layout)
+
     if (containerRef.current.offsetWidth === 0 && containerRef.current.offsetHeight === 0) return;
 
     mapRef.current = L.map(containerRef.current, {
       center: IPB_CENTER,
       zoom: DEFAULT_ZOOM,
-      zoomControl: false,
+      zoomControl,
       attributionControl: false,
     });
 
