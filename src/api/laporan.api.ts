@@ -15,7 +15,6 @@ export class LaporanApi {
         ...(params?.date_to && { date_to: params.date_to }),
       },
     });
-    console.log('Fetched laporan:', res.data);
     return res.data;
   }
 
