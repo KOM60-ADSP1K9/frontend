@@ -8,6 +8,7 @@ import { Toast } from '../../utils/toast';
 import { LoadingSpinner } from '../../components/common/loading.spinner';
 import { BottomNavbar } from '../../components/common/bottom.navbar';
 import { ThemeManager } from '../../utils/theme';
+import { UserCache } from '../../utils/user.cache';
 import type { User as UserType } from '../../types/auth.types';
 
 interface State {
@@ -29,6 +30,7 @@ class ProfilePageBase extends React.Component<RouterProps, State> {
         this.props.navigate('/login');
         return;
       }
+      UserCache.setRole(res.data.role);
       this.setState({ user: res.data, isLoading: false });
     } catch {
       Toast.error('Sesi berakhir, silakan masuk kembali.');
@@ -41,6 +43,7 @@ class ProfilePageBase extends React.Component<RouterProps, State> {
     const confirmed = await Alert.confirm('Keluar', 'Yakin ingin keluar dari akun?');
     if (!confirmed) return;
     localStorage.removeItem('access_token');
+    UserCache.clear();
     this.props.navigate('/login');
   };
 
@@ -133,10 +136,9 @@ class ProfilePageBase extends React.Component<RouterProps, State> {
     return (
       <div className="min-h-screen bg-brand-bg flex flex-col">
         <main className="flex-1 px-5 pt-8 pb-24 max-w-lg mx-auto w-full">
-          {/* Header */}
+
           <h1 className="text-lg font-bold text-brand-text mb-6">Profil</h1>
 
-          {/* Avatar + identity */}
           <div className="flex flex-col items-center mb-6">
             <div className="w-20 h-20 rounded-full bg-red-800 flex items-center justify-center text-white text-3xl font-bold mb-3 shadow-lg">{this.getInitial(user)}</div>
             <h2 className="text-lg font-bold text-brand-text leading-tight">{this.getDisplayName(user)}</h2>
@@ -144,14 +146,11 @@ class ProfilePageBase extends React.Component<RouterProps, State> {
             <span className={`mt-2 text-[10px] font-bold px-3 py-1 rounded-full tracking-widest ${isMahasiswa ? 'bg-sky-500/20 text-sky-400' : 'bg-violet-500/20 text-violet-400'}`}>{isMahasiswa ? 'MAHASISWA' : 'STAFF'}</span>
           </div>
 
-          {/* Data Diri accordion */}
           {this.renderAccordion(user)}
 
-          {/* Menu */}
           <div className="flex flex-col gap-3">
             {this.renderMenuButton(<ClipboardList size={18} />, 'Laporan saya', () => this.props.navigate('/laporan-saya'))}
 
-            {/* Theme toggle — mobile only (desktop has sidebar toggle) */}
             <button onClick={this.handleThemeToggle} className="lg:hidden w-full flex items-center gap-4 px-4 py-4 rounded-2xl bg-brand-surface-alt hover:brightness-110 active:scale-[0.99] transition-all duration-200">
               <span className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 bg-brand-surface text-brand-muted">
                 {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}

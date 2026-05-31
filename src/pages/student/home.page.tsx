@@ -1,5 +1,5 @@
 import React from 'react';
-import { Inbox, X } from 'lucide-react';
+import { Inbox, Maximize2, X } from 'lucide-react';
 import { withRouter } from '../../router/with.router';
 import type { RouterProps } from '../../router/with.router';
 import { BottomNavbar } from '../../components/common/bottom.navbar';
@@ -9,6 +9,7 @@ import { LoadingSpinner } from '../../components/common/loading.spinner';
 import { LaporanApi } from '../../api/laporan.api';
 import { AuthApi } from '../../api/auth.api';
 import { Toast } from '../../utils/toast';
+import { UserCache } from '../../utils/user.cache';
 import { NotificationBell } from '../../components/common/notification.bell';
 import type { HomepageLaporanItem } from '../../types/report.types';
 import type { User } from '../../types/auth.types';
@@ -51,13 +52,12 @@ interface State {
   selectedDate: string;
   typeFilter: LaporanFilterType;
   selectedLocationLaporan: HomepageLaporanItem[] | null;
+  mapFullscreen: boolean;
 }
-
 
 const DATE_STRIP = buildDateStrip();
 const TODAY_STR = toLocalDateStr(new Date());
 
-// date_from = 15 days ago, date_to = 15 days from now
 function getWindowBounds(): { date_from: string; date_to: string } {
   const today = new Date();
   const from = new Date(today);
@@ -78,10 +78,11 @@ class BerandaPageBase extends React.Component<RouterProps, State> {
     selectedDate: TODAY_STR,
     typeFilter: 'semua',
     selectedLocationLaporan: null,
+    mapFullscreen: false,
   };
 
   async componentDidMount() {
-    // Scroll to today immediately — the date strip is rendered on first mount
+
     requestAnimationFrame(() => this.scrollToToday('auto'));
 
     const { date_from, date_to } = getWindowBounds();
@@ -92,6 +93,7 @@ class BerandaPageBase extends React.Component<RouterProps, State> {
 
     if (userRes.status === 'fulfilled' && userRes.value.status === 'success') {
       nextState.user = userRes.value.data;
+      UserCache.setRole(userRes.value.data.role);
     }
 
     if (laporanRes.status === 'fulfilled' && laporanRes.value.status === 'success') {
@@ -110,7 +112,7 @@ class BerandaPageBase extends React.Component<RouterProps, State> {
     const container = this.dateStripRef.current;
     const btn = this.todayBtnRef.current;
     if (!container || !btn) return;
-    // Today's right edge flush with the container's right edge (+ 16px strip padding)
+
     const scrollLeft = btn.offsetLeft + btn.offsetWidth - container.clientWidth + 16;
     container.scrollTo({ left: Math.max(0, scrollLeft), behavior });
   }
@@ -180,6 +182,14 @@ class BerandaPageBase extends React.Component<RouterProps, State> {
     this.setState({ selectedLocationLaporan: null });
   };
 
+  private handleMapExpand = () => {
+    this.setState({ mapFullscreen: true });
+  };
+
+  private handleMapCollapse = () => {
+    this.setState({ mapFullscreen: false });
+  };
+
   private renderLocationPanel() {
     const { selectedLocationLaporan } = this.state;
     if (!selectedLocationLaporan) return null;
@@ -223,10 +233,39 @@ class BerandaPageBase extends React.Component<RouterProps, State> {
   private renderMap() {
     return (
       <div>
-        <div className="mx-4 mb-1 rounded-2xl overflow-hidden" style={{ height: 220 }}>
+        <div className="mx-4 mb-1 rounded-2xl overflow-hidden relative" style={{ height: 220 }}>
           <LaporanMap laporan={this.getMapLaporan()} onMarkerClick={this.handleMapMarkerClick} />
+          <button
+            onClick={this.handleMapExpand}
+            className="absolute top-2 right-2 z-[1000] bg-white/90 hover:bg-white text-gray-700 rounded-lg p-1.5 shadow-md"
+          >
+            <Maximize2 size={14} />
+          </button>
         </div>
         <p className="text-brand-muted text-[12px] px-5 mb-3">Menampilkan laporan 2 minggu terakhir</p>
+      </div>
+    );
+  }
+
+  private renderFullscreenMap() {
+    const { mapFullscreen } = this.state;
+    if (!mapFullscreen) return null;
+
+    return (
+      <div className="fixed inset-0 z-50 bg-black flex flex-col">
+        <div className="flex items-center justify-between px-4 py-3 bg-brand-bg border-b border-white/10 flex-shrink-0">
+          <p className="text-brand-text font-semibold text-sm">Peta Laporan</p>
+          <button onClick={this.handleMapCollapse} className="text-brand-muted hover:text-brand-text p-1">
+            <X size={20} />
+          </button>
+        </div>
+        <div className="flex-1">
+          <LaporanMap
+            laporan={this.getMapLaporan()}
+            onMarkerClick={this.handleMapMarkerClick}
+            zoomControl
+          />
+        </div>
       </div>
     );
   }
@@ -307,7 +346,7 @@ class BerandaPageBase extends React.Component<RouterProps, State> {
 
     return (
       <div className="bg-brand-bg">
-        {/* ── Mobile layout ───────────────────────────────────── */}
+
         <div className="flex flex-col min-h-screen lg:hidden">
           {this.renderHeader()}
           {this.renderMap()}
@@ -321,9 +360,8 @@ class BerandaPageBase extends React.Component<RouterProps, State> {
           </div>
         </div>
 
-        {/* ── Desktop layout ──────────────────────────────────── */}
         <div className="hidden lg:flex pl-14 min-h-screen">
-          {/* Left: scrollable main content */}
+
           <div className="flex-1 flex flex-col h-screen overflow-y-auto">
             {this.renderHeader()}
             <div className="flex items-center justify-between px-5 mb-3">
@@ -337,20 +375,26 @@ class BerandaPageBase extends React.Component<RouterProps, State> {
             <div className="flex-1 px-5 pb-6">{laporanListContent}</div>
           </div>
 
-          {/* Right: sticky map panel */}
           <div className="w-88 flex-shrink-0 border-l border-white/5 sticky top-0 h-screen">
             <div className="px-5 pt-5 pb-1">
               <p className="text-brand-text font-semibold text-lg">Peta Laporan
               <span className="text-brand-muted text-[14px] mt-0.5"> - 2 minggu terakhir</span></p>
             </div>
-            <div className="mx-4 rounded-2xl overflow-hidden" style={{ height: 400 }}>
+            <div className="mx-4 rounded-2xl overflow-hidden relative" style={{ height: 400 }}>
               <LaporanMap laporan={this.getMapLaporan()} onMarkerClick={this.handleMapMarkerClick} />
+              <button
+                onClick={this.handleMapExpand}
+                className="absolute top-2 right-2 z-[1000] bg-white/90 hover:bg-white text-gray-700 rounded-lg p-1.5 shadow-md"
+              >
+                <Maximize2 size={14} />
+              </button>
             </div>
           </div>
         </div>
 
         <BottomNavbar />
         {this.renderLocationPanel()}
+        {this.renderFullscreenMap()}
       </div>
     );
   }
