@@ -57,7 +57,7 @@ class RegisterFormBase extends React.Component<RouterProps, State> {
         });
       }
     } catch {
-
+      Toast.error('Gagal memuat pilihan fakultas');
     } finally {
       this.setState({ loadingFakultas: false });
     }
@@ -92,7 +92,7 @@ class RegisterFormBase extends React.Component<RouterProps, State> {
           });
         }
       } catch {
-
+        Toast.error('Gagal memuat pilihan departemen');
       } finally {
         this.setState({ loadingDepartemen: false });
       }
