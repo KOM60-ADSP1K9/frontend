@@ -11,7 +11,9 @@ import { KategoriApi } from '../../api/kategori.api';
 import { Alert } from '../../utils/alert';
 import { Toast } from '../../utils/toast';
 import { LaporanService } from '../../services/laporan.service';
-import type { HomepageLaporanItem, LaporanStatus, KategoriBarang, UpdateStatusValue } from '../../types/report.types';
+import { buildIdNameMap } from '../../utils/map.util';
+import { STATUS_OPTIONS } from '../../constants/status.options';
+import type { HomepageLaporanItem, KategoriBarang, UpdateStatusValue } from '../../types/report.types';
 import type { LaporanFilterType, ActiveFilters } from '../../types/ui.types';
 
 interface State {
@@ -30,15 +32,6 @@ interface State {
 }
 
 const EMPTY_FILTERS: ActiveFilters = { date_from: '', date_to: '', kategoriId: '', lokasiId: '', status: '' };
-
-const STATUS_OPTIONS: { value: LaporanStatus; label: string }[] = [
-  { value: 'active', label: 'Aktif' },
-  { value: 'draft', label: 'Draft' },
-  { value: 'claim pending', label: 'Diklaim' },
-  { value: 'resolved', label: 'Ditemukan' },
-  { value: 'self-resolved', label: 'Ditemukan Sendiri' },
-  { value: 'closed', label: 'Ditutup' },
-];
 
 class LaporanSayaPageBase extends React.Component<RouterProps, State> {
   state: State = {
@@ -68,18 +61,12 @@ class LaporanSayaPageBase extends React.Component<RouterProps, State> {
     }
 
     if (lokasiRes.status === 'fulfilled' && lokasiRes.value.status === 'success') {
-      const map: Record<string, string> = {};
-      lokasiRes.value.data.forEach((l) => {
-        map[l.id] = l.name;
-      });
-      next.lokasiMap = map;
+      next.lokasiMap = buildIdNameMap(lokasiRes.value.data);
     }
 
     if (kategoriRes.status === 'fulfilled' && kategoriRes.value.status === 'success') {
       next.kategoriList = kategoriRes.value.data;
-      const kMap: Record<string, string> = {};
-      kategoriRes.value.data.forEach((k) => { kMap[k.id] = k.name; });
-      next.kategoriMap = kMap;
+      next.kategoriMap = buildIdNameMap(kategoriRes.value.data);
     }
 
     this.setState(next as State);

@@ -14,6 +14,7 @@ import { ClaimInquiryForm } from '../../components/report/claim.inquiry.form';
 import { FoundInquiryForm } from '../../components/report/found.inquiry.form';
 import { InquiryApi } from '../../api/inquiry.api';
 import type { HomepageLaporanItem, LaporanDetailResponse, UpdateStatusValue, InquiryStatus } from '../../types/report.types';
+import { buildIdNameMap } from '../../utils/map.util';
 
 interface State {
   laporan: LaporanDetailResponse | null;
@@ -46,15 +47,8 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
 
     const [lokasiRes, kategoriRes] = await Promise.all([LokasiApi.getAll(), KategoriApi.getAll()]);
 
-    const lokasiMap: Record<string, string> = {};
-    if (lokasiRes.status === 'success') {
-      lokasiRes.data.forEach((l) => { lokasiMap[l.id] = l.name; });
-    }
-
-    const kategoriMap: Record<string, string> = {};
-    if (kategoriRes.status === 'success') {
-      kategoriRes.data.forEach((k) => { kategoriMap[k.id] = k.name; });
-    }
+    const lokasiMap = lokasiRes.status === 'success' ? buildIdNameMap(lokasiRes.data) : {};
+    const kategoriMap = kategoriRes.status === 'success' ? buildIdNameMap(kategoriRes.data) : {};
 
     if (passed) {
 
@@ -159,7 +153,9 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
           prev.laporan ? { laporan: { ...prev.laporan, inquiries: res.data.inquiries } } : null,
         );
       }
-    } catch {  }
+    } catch {
+      Toast.error('Gagal memuat data inquiry');
+    }
   };
 
   private handleInquiryStatusUpdate = async (inquiryId: string, status: InquiryStatus) => {
