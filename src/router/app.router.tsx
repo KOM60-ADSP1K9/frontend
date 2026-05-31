@@ -11,6 +11,7 @@ import { LaporanDetailPage } from '../pages/report/laporan.detail.page';
 import { EditLaporanPage } from '../pages/report/edit.laporan.page';
 import { LaporanSayaPage } from '../pages/report/laporan.saya.page';
 import { NotifikasiPage } from '../pages/notifikasi.page';
+import { UsersPage } from '../pages/staff/users.page';
 
 const AppRouter = () => (
   <BrowserRouter>
@@ -79,6 +80,14 @@ const AppRouter = () => (
         element={
           <ProtectedRoute>
             <NotifikasiPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/staff/users"
+        element={
+          <ProtectedRoute>
+            <UsersPage />
           </ProtectedRoute>
         }
       />
