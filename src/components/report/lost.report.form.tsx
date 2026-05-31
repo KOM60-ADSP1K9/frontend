@@ -10,6 +10,7 @@ import { LokasiApi } from '../../api/lokasi.api';
 import { KategoriApi } from '../../api/kategori.api';
 import { Toast } from '../../utils/toast';
 import { Alert } from '../../utils/alert';
+import { validateFile } from '../../utils/file.validation';
 import type { Lokasi, KategoriBarang } from '../../types/report.types';
 
 function isMobileDevice(): boolean {
@@ -123,14 +124,13 @@ class LostReportFormBase extends React.Component<RouterProps, State> {
   private handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (!['image/jpeg', 'image/png'].includes(file.type)) {
-      this.setState({ errors: { ...this.state.errors, photo: 'Hanya JPG atau PNG yang diizinkan' } });
+    const err = validateFile(file);
+    if (err) {
+      this.setState({ errors: { ...this.state.errors, photo: err } });
       e.target.value = '';
       return;
     }
-    if (this.state.photoPreview) {
-      URL.revokeObjectURL(this.state.photoPreview);
-    }
+    if (this.state.photoPreview) URL.revokeObjectURL(this.state.photoPreview);
     const preview = URL.createObjectURL(file);
     this.setState({
       photo: file,

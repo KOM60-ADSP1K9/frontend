@@ -8,8 +8,9 @@ import { LoadingSpinner } from '../common/loading.spinner';
 import { LaporanApi } from '../../api/laporan.api';
 import { LokasiApi } from '../../api/lokasi.api';
 import { KategoriApi } from '../../api/kategori.api';
-import { AuthApi } from '../../api/auth.api';
 import { Toast } from '../../utils/toast';
+import { validateFile } from '../../utils/file.validation';
+import { UserCache } from '../../utils/user.cache';
 import { Alert } from '../../utils/alert';
 import type { Lokasi, KategoriBarang } from '../../types/report.types';
 
@@ -63,8 +64,8 @@ class FoundReportFormBase extends React.Component<RouterProps, State> {
   };
 
   async componentDidMount() {
-    this.setState({ isMobile: isMobileDevice() });
-    await Promise.all([this.fetchLokasi(), this.fetchKategori(), this.fetchUserRole()]);
+    this.setState({ isMobile: isMobileDevice(), isStaff: UserCache.getRole() === 'STAFF' });
+    await Promise.all([this.fetchLokasi(), this.fetchKategori()]);
   }
 
   componentWillUnmount() {
@@ -91,17 +92,6 @@ class FoundReportFormBase extends React.Component<RouterProps, State> {
     }
   }
 
-  private async fetchUserRole() {
-    try {
-      const res = await AuthApi.me();
-      if (res.status === 'success') {
-        this.setState({ isStaff: res.data.role === 'STAFF' });
-      }
-    } catch {
-
-    }
-  }
-
   private handleTextChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     this.setState((prev) => ({
@@ -123,8 +113,9 @@ class FoundReportFormBase extends React.Component<RouterProps, State> {
   private handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (!['image/jpeg', 'image/png'].includes(file.type)) {
-      this.setState({ errors: { ...this.state.errors, photo: 'Hanya JPG atau PNG yang diizinkan' } });
+    const err = validateFile(file);
+    if (err) {
+      this.setState({ errors: { ...this.state.errors, photo: err } });
       e.target.value = '';
       return;
     }

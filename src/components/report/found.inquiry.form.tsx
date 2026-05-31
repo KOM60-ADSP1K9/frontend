@@ -3,9 +3,7 @@ import { InquiryApi } from '../../api/inquiry.api';
 import { LoadingSpinner } from '../common/loading.spinner';
 import { Alert } from '../../utils/alert';
 import { Toast } from '../../utils/toast';
-
-const MAX_SIZE_MB = 5;
-const ALLOWED_TYPES = ['image/jpeg', 'image/png'];
+import { validateFile } from '../../utils/file.validation';
 
 interface Props {
   laporanId: string;
@@ -19,12 +17,6 @@ interface State {
   photoFile: File | null;
   isLoading: boolean;
   errors: { message?: string; contact?: string; photo?: string };
-}
-
-function validateFile(file: File): string | null {
-  if (!ALLOWED_TYPES.includes(file.type)) return 'Hanya JPG atau PNG yang diizinkan';
-  if (file.size > MAX_SIZE_MB * 1024 * 1024) return `Maks ${MAX_SIZE_MB} MB`;
-  return null;
 }
 
 export class FoundInquiryForm extends React.Component<Props, State> {
