@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { HomepageLaporanItem, LokasiEmbedded } from '../../types/report.types';
@@ -49,54 +49,63 @@ function makeGroupIcon(items: HomepageLaporanItem[]): L.DivIcon {
   });
 }
 
-export const LaporanMap: React.FC<Props> = ({ laporan, onMarkerClick, zoomControl = false }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<L.Map | null>(null);
-  const markersRef = useRef<L.Marker[]>([]);
+export class LaporanMap extends React.Component<Props> {
+  private containerRef = React.createRef<HTMLDivElement>();
+  private map: L.Map | null = null;
+  private markers: L.Marker[] = [];
 
-  useEffect(() => {
-    if (!containerRef.current || mapRef.current) return;
+  componentDidMount() {
+    const container = this.containerRef.current;
+    if (!container || this.map) return;
+    if (container.offsetWidth === 0 && container.offsetHeight === 0) return;
 
-    if (containerRef.current.offsetWidth === 0 && containerRef.current.offsetHeight === 0) return;
-
-    mapRef.current = L.map(containerRef.current, {
+    this.map = L.map(container, {
       center: IPB_CENTER,
       zoom: DEFAULT_ZOOM,
-      zoomControl,
+      zoomControl: this.props.zoomControl ?? false,
       attributionControl: false,
     });
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
-    }).addTo(mapRef.current);
+    }).addTo(this.map);
 
-    return () => {
-      mapRef.current?.remove();
-      mapRef.current = null;
-    };
-  }, []);
+    this.updateMarkers();
+  }
 
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map) return;
+  componentDidUpdate(prevProps: Props) {
+    if (prevProps.laporan !== this.props.laporan || prevProps.onMarkerClick !== this.props.onMarkerClick) {
+      this.updateMarkers();
+    }
+  }
 
-    markersRef.current.forEach((m) => m.remove());
-    markersRef.current = [];
+  componentWillUnmount() {
+    this.map?.remove();
+    this.map = null;
+  }
 
-    const groups = buildGroups(laporan);
+  private updateMarkers() {
+    if (!this.map) return;
+
+    this.markers.forEach((m) => m.remove());
+    this.markers = [];
+
+    const groups = buildGroups(this.props.laporan);
 
     groups.forEach(({ loc, items }) => {
       const marker = L.marker([loc.latitude, loc.longitude], { icon: makeGroupIcon(items) });
       marker.bindTooltip(loc.name, { direction: 'top', offset: [0, -10] });
 
-      if (onMarkerClick) {
-        marker.on('click', () => onMarkerClick(items));
+      if (this.props.onMarkerClick) {
+        marker.on('click', () => this.props.onMarkerClick!(items));
       }
 
-      marker.addTo(map);
-      markersRef.current.push(marker);
+      marker.addTo(this.map!);
+      this.markers.push(marker);
     });
-  }, [laporan, onMarkerClick]);
+  }
 
-  return <div ref={containerRef} style={{ width: '100%', height: '100%' }} />;
-};
+  render() {
+    return <div ref={this.containerRef} style={{ width: '100%', height: '100%' }} />;
+  }
+}
