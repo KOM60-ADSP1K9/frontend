@@ -198,8 +198,8 @@ class BerandaPageBase extends React.Component<RouterProps, State> {
     const loc = first?.type === 'hilang' ? first?.lost_at_location : first?.found_at_location;
 
     return (
-      <div className="fixed inset-0 z-40 bg-black/50 lg:flex lg:items-center lg:justify-center" onClick={this.handlePanelClose}>
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-brand-bg rounded-t-3xl max-h-[60vh] flex flex-col shadow-xl lg:static lg:z-auto lg:w-[520px] lg:rounded-2xl lg:max-h-[80vh]" onClick={(e) => e.stopPropagation()}>
+      <div className="fixed inset-0 z-[60] bg-black/50 lg:flex lg:items-center lg:justify-center" onClick={this.handlePanelClose}>
+        <div className="fixed bottom-0 left-0 right-0 z-[70] bg-brand-bg rounded-t-3xl max-h-[60vh] flex flex-col shadow-xl lg:static lg:z-auto lg:w-[520px] lg:rounded-2xl lg:max-h-[80vh]" onClick={(e) => e.stopPropagation()}>
           <div className="flex justify-center pt-3 pb-1 lg:hidden">
             <div className="w-10 h-1 rounded-full bg-brand-muted/40" />
           </div>
