@@ -10,7 +10,9 @@ import { LokasiApi } from '../../api/lokasi.api';
 import { KategoriApi } from '../../api/kategori.api';
 import { Alert } from '../../utils/alert';
 import { Toast } from '../../utils/toast';
-import type { HomepageLaporanItem, Lokasi, KategoriBarang } from '../../types/report.types';
+import type { HomepageLaporanItem, LaporanDetailResponse, Lokasi, KategoriBarang } from '../../types/report.types';
+
+type EditLaporanSource = HomepageLaporanItem | LaporanDetailResponse;
 
 interface State {
   barang_name: string;
@@ -54,7 +56,7 @@ class EditLaporanPageBase extends React.Component<RouterProps, State> {
   };
 
   async componentDidMount() {
-    const passed = (this.props.location.state as { laporan?: HomepageLaporanItem } | null)?.laporan;
+    const passed = (this.props.location.state as { laporan?: EditLaporanSource } | null)?.laporan;
 
     if (!passed) {
       Alert.error('Data tidak ditemukan', 'Buka halaman edit dari detail laporan.');
@@ -67,8 +69,9 @@ class EditLaporanPageBase extends React.Component<RouterProps, State> {
     const lokasi = lokasiRes.status === 'fulfilled' && lokasiRes.value.status === 'success' ? lokasiRes.value.data : [];
     const kategori = kategoriRes.status === 'fulfilled' && kategoriRes.value.status === 'success' ? kategoriRes.value.data : [];
 
-    const locationEmbedded = passed.type === 'hilang' ? passed.lost_at_location : passed.found_at_location;
-    const locationId = locationEmbedded?.id ?? '';
+    const locationId = 'lost_at_location' in passed
+      ? (passed.type === 'hilang' ? passed.lost_at_location?.id : passed.found_at_location?.id) ?? ''
+      : (passed.type === 'hilang' ? passed.lost_at_location_id : passed.found_at_location_id) ?? '';
 
     const date = passed.type === 'hilang' ? (passed.lost_at_date ?? '') : (passed.found_at_date ?? '');
 
@@ -140,7 +143,7 @@ class EditLaporanPageBase extends React.Component<RouterProps, State> {
     e.preventDefault();
     if (!this.validate()) return;
 
-    const passed = (this.props.location.state as { laporan?: HomepageLaporanItem } | null)?.laporan;
+    const passed = (this.props.location.state as { laporan?: EditLaporanSource } | null)?.laporan;
     if (!passed) return;
 
     const { barang_name, barang_description, kategori_barang_id, location_id, date, photo } = this.state;
@@ -182,7 +185,7 @@ class EditLaporanPageBase extends React.Component<RouterProps, State> {
   render() {
     const { barang_name, barang_description, kategori_barang_id, location_id, date, photoPreview, existingPhotoUrl, lokasi, kategori, isFetchingData, isSubmitting, errors } = this.state;
 
-    const passed = (this.props.location.state as { laporan?: HomepageLaporanItem } | null)?.laporan;
+    const passed = (this.props.location.state as { laporan?: EditLaporanSource } | null)?.laporan;
     const isHilang = passed?.type === 'hilang';
 
     if (isFetchingData) {
