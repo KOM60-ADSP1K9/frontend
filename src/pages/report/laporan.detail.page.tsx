@@ -62,9 +62,7 @@ class LaporanDetailPageBase extends React.Component<RouterProps, State> {
 
       LaporanApi.getLaporanDetail(laporanId).then((res) => {
         if (res.status === 'success') {
-          this.setState((prev) =>
-            prev.laporan ? { laporan: { ...prev.laporan, inquiries: res.data.inquiries } } : null,
-          );
+          this.setState({ laporan: res.data });
         }
       }).catch(() => {});
     } else {
